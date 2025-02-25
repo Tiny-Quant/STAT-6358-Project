@@ -1,0 +1,56 @@
+# Base Image.
+FROM bioconductor/bioconductor_docker:devel
+
+# Set working directory name. 
+WORKDIR /repo
+
+# Install linux tools. 
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    build-essential git bash curl wget vim gdebi-core \
+    r-base-dev libssl-dev libxml2-dev libcurl4-openssl-dev \
+    bzip2 ca-certificates unzip locales && \ 
+    locale-gen en_US.UTF-8 && \
+    update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \ 
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* 
+
+# Install Oh My Bash.
+RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" && \
+    # Set the theme and configuration (optional customization)
+    sed -i 's/OSH_THEME="font"/OSH_THEME="powerline-multiline"/g' ~/.bashrc && \ 
+    echo 'alias ll="ls -lah"' >> ~/.bashrc
+
+# Set Git user configuration.
+RUN git config --global user.name "container" && \
+    git config --global user.email "container@docker.com"
+
+# Install miniconda. 
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
+    bash /tmp/miniconda.sh -b -p /opt/miniconda && \
+    rm /tmp/miniconda.sh
+ENV PATH=/opt/miniconda/bin:$PATH
+RUN pip install --upgrade pip
+RUN conda clean --all --yes && \
+    conda init bash
+RUN conda update libstdcxx-ng -c conda-forge
+RUN conda install conda-forge::radian
+
+# Install R packages
+COPY .devcontainer/r-pkg-installer.r /tmp/r-pkg-install.r
+RUN Rscript /tmp/r-pkg-install.r 
+
+# Install quarto. 
+RUN curl -LO https://quarto.org/download/latest/quarto-linux-amd64.deb
+RUN gdebi --non-interactive quarto-linux-amd64.deb
+RUN quarto install tinytex
+
+# Set environment variables for locale
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
+# Copy current directory. 
+COPY . /repo/

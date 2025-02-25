@@ -1,0 +1,12 @@
+services:
+
+  devcontainer:
+    build:
+      context: .. # Look up a directory.
+      dockerfile: .devcontainer/Dockerfile
+
+    volumes:
+      # Mount one directory up to the container's repo folder.
+      - ../:/repo
+
+    command: sleep infinity 

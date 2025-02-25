@@ -1,0 +1,41 @@
+---
+title: "**Variance All the Way Down:** Quantifying the Uncertainty Introduced at each Stage of an End-to-End RNA-Seq Analysis"
+author: "Art Tay"
+format:
+  pdf:
+     documentclass: article
+     papersize: letter
+     geometry:
+         margin=1in
+---
+
+```{r setup, include=FALSE}
+##Setup code
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Libraries
+library(tidyverse)
+library(tidymodels)
+library(kableExtra)
+
+
+#tidymodels_prefer()
+```
+
+# Abstract 
+
+# Preliminary Results
+
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ShortRead")
+```
+
+```{r}
+library(ShortRead)
+
+fq1 <- readFastq("./data/SRR31476642/SRR31476642.fastq")
+seq1 <- sread(fq1)
+```
