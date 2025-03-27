@@ -7,6 +7,12 @@ format:
      papersize: letter
      geometry:
          margin=1in
+     include-in-header: header.tex
+bibliography: references.bib
+csl: american-statistical-association.csl
+execute: 
+  echo: true
+  eval: false
 ---
 
 ```{r setup, include=FALSE}
@@ -24,18 +30,75 @@ library(kableExtra)
 
 # Abstract 
 
+In the realm of RNA-Seq research, rigorous data preprocessing is a critical foundation for meaningful analysis. Despite its importance, this preprocessing involves numerous stages, each introducing potential sources of variance. While previous studies have examined the overall variance across entire RNA-Seq pipelines, [@arora2020variability] [@tong2020impact], [@vieth2019systematic], the impact of individual stages remains less understood. We propose a comprehensive investigation into the variance introduced at each stage of RNA-Seq preprocessing. Our goal is to quantify these variances, study their distributions, and understand their statistical implications on downstream modeling. This will include exploring the multitude of decisions researchers face — from quality control to normalization and feature selection — and evaluating how these choices propagate uncertainty through the analysis. Of particular interest is whether variance amplifies due to interactions between decisions made at different stages. By modeling these interactions, we aim to identify cases where suboptimal combinations of preprocessing choices exacerbate variability, potentially distorting biological interpretations. Finally, we will assess various bias correction methods and uncertainty quantification strategies to incorporate into final models. This work aims to provide researchers with actionable insights and robust statistical tools to mitigate preprocessing-induced variance, ultimately enhancing the reliability and reproducibility of RNA-Seq studies.
+
 # Preliminary Results
+
+## Quality Score Variance Due to Fasterq-dump Options 
 
 ```{r}
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
 BiocManager::install("ShortRead")
+BiocManager::install("Rsubread")
 ```
 
 ```{r}
 library(ShortRead)
 
-fq1 <- readFastq("./data/SRR31476642/SRR31476642.fastq")
-seq1 <- sread(fq1)
+sample_1_fq_1 <- readFastq("./data/dump_1/SRR31476642.fastq") 
+sample_1_fq_2 <- readFastq("./data/dump_2/SRR31476642.fastq")
+sample_1_fq_3 <- readFastq("./data/dump_3/SRR31476642.fastq")
+```
+
+```{r}
+sample_1_fq_1_qual <- as(quality(sample_1_fq_1), "matrix")
+sample_1_fq_2_qual <- as(quality(sample_1_fq_2), "matrix")
+sample_1_fq_3_qual <- as(quality(sample_1_fq_3), "matrix")
+
+sample_1_fq_13_qual_diff <- sample_1_fq_1_qual - sample_1_fq_3_qual
+sample_1_fq_12_qual_diff <- sample_1_fq_1_qual - sample_1_fq_2_qual
+```
+
+```{r}
+mean(sample_1_fq_13_qual_diff)
+mean(sample_1_fq_12_qual_diff)
+```
+
+## Comparing Alignment Accuracy  
+
+```{r}
+fastq_files <- list.files(
+    path = "./data/dump_1", pattern = "\\.fastq$", full.names = TRUE
+)
+```
+
+```{r}
+library(Rsubread)
+
+buildindex(basename="hg19_g1k",
+           reference="./data/human_g1k_v37.fasta",
+           memory=3600
+)
+
+align_reads <- function(file, index_base, output_dir) {
+  align(
+    index = index_base,
+    readfile1 = file,
+    output_file = file.path(output_dir, paste0(basename(file), ".bam")),
+    nthreads = 4
+  )
+}
+```
+
+```{r}
+trim_reads <- function(file, quality_threshold = 20, min_length = 30) {
+    fq <- readFastq(file)
+    fq_filtered <- fq[
+        alphabetScore(quality(fq)) >= quality_threshold & width(fq) >= min_length
+    ]
+    output_file <- sub(".fastq", "_trimmed.fastq", file)
+    writeFastq(fq_filtered, output_file, compress = FALSE)
+}
 ```

@@ -1,0 +1,96 @@
+---
+title: "A General-er Coarse Data Model"
+author: "Art Tay"
+format:
+  pdf:
+     documentclass: article
+     papersize: letter
+     geometry:
+         margin=1in
+     include-in-header: header.tex
+bibliography: references.bib
+csl: american-statistical-association.csl
+---
+
+```{r setup, include=FALSE}
+##Setup code
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Libraries
+library(tidyverse)
+library(tidymodels)
+library(kableExtra)
+
+
+tidymodels_prefer()
+```
+
+# Abstract 
+
+In the realm of high-throughput biological data, researchers are often faced with the challenge of integrating diverse measurement modalities, such as RNA-Seq and microarrays. These methods exhibit a trade-off between granularity and practicality: more granular techniques offer higher accuracy but come with increased costs and time requirements, while less granular methods are faster and more affordable but less precise. Despite these inherent differences, meta-analyses frequently necessitate the joint modeling of disparate data types to draw comprehensive conclusions. Traditional approaches, such as the classical coarse data model, have been applied in analogous contexts. However, these methods can falter when the fundamental assumption of sub-sample space inclusion is violated [@Heitjan_Rubin_1991]. For instance, while RNA-Seq provides precise count data, microarray experiments yield intensity values that may not correspond directly to any actual count, complicating integration efforts. To address this, we propose a novel Bayesian framework that incorporates a random coarsening function, enabling the joint modeling of heterogeneous data sources. Unlike previous Bayesian methods, our method explicitly models the functional relationship between RNA-Seq and microarray data [@Ma_Liang_Oesterreich_Tseng_2017]. This allows researcher to directly applied any methods designed for singularly typed data. Ultimately, we believe that our method will be a more interpretable and general synthesis of different biological assays.  
+
+# Preliminary Results
+
+Assume that we have gene measurements on $n$ samples in $X_{n \times p}$ where $p >> n$ with associated coarseness indicators $G_{n \times 1}$ and outcomes $Y_{n \times 1}$. 
+
+```{r}
+#| echo: false
+
+table_1 <- data.frame(
+    Data = c("sample 1", "sample 2", "$\\vdots$", "sample n"), 
+    Outcome = c(0, 1, "$\\vdots$", 1), 
+    Gene1 = c("count", "continuous", "$\\vdots$", "count"), 
+    Genex = c("$\\cdots$", "$\\cdots$","$\\cdots$","$\\cdots$"), 
+    Genep = c("count", "continuous", "$\\vdots$", "count"), 
+    Coarseness = c(0, 1, "$\\vdots$", 0) 
+)
+
+colnames(table_1) <- c("Data", "Outcome", "Gene 1", "$\\cdots$", "Gene p", "Coarseness")
+
+table_1 |> kbl(format = "latex", booktabs = T,
+    longtable = T, linesep = "", escape = F, align = "c")  
+```
+
+Generally, we might be interested in modeling the data using a GLM 
+
+\begin{equation} \label{eq-1}
+    Y = g(X\beta) + \epsilon \quad \epsilon \sim f(\theta)
+\end{equation}
+
+where $f$ is some distribution with $\mathbb{E}[\epsilon] = 0$. Usually $X$ is fixed making it easy to find the MLE for $\beta$; however, here $X$ is random. Specifically, we will assume that:  
+
+\begin{equation} \label{eq-2}
+    X = \begin{cases}
+        X &\text{ if } G = 0 \\ 
+        h(X) &\text{ if } G = 1
+    \end{cases}
+\end{equation}
+
+where $h$ is the unknown coarsening function. Now we can define the following hierarchical model:  
+
+\begin{equation}
+\begin{aligned}
+    L(\beta, h \ | \ Y, X, G) 
+        &\propto f(X, Y, G \ | \ \beta, h) \\  
+        &\propto f(Y | X, G, \beta, h) \cdot p(X \ | \ G, h, \beta) \cdot 
+            f(\beta \ | \ h, G) \cdot f(h \ | \ G) \cdot f(G) \\ 
+        &\propto f(Y | X, G, \beta, h) \cdot p(X \ | \ G, h, \beta) \cdot 
+            f(\beta \ | \ h, G) \cdot f(h \ | \ G) \\ 
+            &\quad \text{ in this context } G \text{ is known.} \\ 
+        &\propto f(Y | X, G, \beta, h) \cdot p(X \ | \ G, h) \cdot 
+            f(\beta) \cdot f(h \ | \ G) \\
+            &\quad\text{ Assuming } h \text{ and } \beta \text{ are free of each other.}\\  
+\end{aligned}
+\end{equation}
+
+The likelihood $f(Y | X, G, \beta, h)$ is given by Eq. \ref{eq-1} and 
+$p(X \ | \ G, h)$ is given by Eq. \ref{eq-2}. Because $p >> n$ it is a good idea to specify a shrinkage prior on $\beta$ such as $\mathcal{N}(0, \Sigma)$. In order to not have to specify the functional form of $h$, we will use a Gaussian process prior.    
+
+\begin{equation}
+    f(h \ | \ G) \sim \begin{cases}
+    X &\text{ if } G = 0 \\ 
+    \mathcal{GP}(\mu_X, \Sigma_X) &\text{ if } G = 1
+    \end{cases}
+\end{equation}
+
+# References
