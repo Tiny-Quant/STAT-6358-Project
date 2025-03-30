@@ -10,9 +10,6 @@ format:
      include-in-header: header.tex
 bibliography: references.bib
 csl: american-statistical-association.csl
-execute: 
-  echo: true
-  eval: false
 ---
 
 ```{r setup, include=FALSE}
@@ -34,9 +31,87 @@ In the realm of RNA-Seq research, rigorous data preprocessing is a critical foun
 
 # Preliminary Results
 
+## Preliminary Methodology Section 
+
+```{r}
+#| echo: false
+#| align: center
+table_1 <- data.frame(
+    steps = c("1. Pull SRA data from the NIH.",
+              "", 
+              "2. Compute quality scores.", "", 
+              "", 
+              "3. Filter low quality reads.", "", 
+              "", 
+              "4. Trim excess bases.", "", 
+              "",
+              "5. Align reads to a genome.", "", 
+              "",
+              "6. Count genes.", "", "",
+              "", 
+              "7. Count normalization.", 
+              "", 
+              "8. Differential expression analysis."),  
+    software = c("prefetch", 
+                 "", 
+                 "fasterq-dump", "", 
+                 "", 
+                 "fastp", "", 
+                 "", 
+                 "fastp", "", 
+                 "", 
+                 "Various", "", 
+                 "", 
+                 "featureCounts", "", "", 
+                 "", 
+                 "edgeR", 
+                 "",
+                 "edgeR"), 
+    options = c("NA", 
+                "", 
+                "--skip-technical", "--threads X", 
+                "", 
+                "--qualified_quality_phred X", "--length_required X", 
+                "", 
+                "--trim_poly_g", "--trim_ploy_x", 
+                "", 
+                "Default", "", 
+                "", 
+                "-Q (minimum map quality.)", "-C (require pair agreement.)", 
+                    "-M (allow multi-map.)",
+                "", 
+                "calcNormFactors(method='X')", 
+                "", 
+                "Default"), 
+    type = c("NA", 
+             "", 
+             "Boolean", "Integer", 
+             "", 
+             "Integer", "Integer", 
+             "", 
+             "Boolean", "Boolean", 
+             "", 
+             "STAR, HISAT2", "Salmon, Kallisto", 
+             "", 
+             "Integer", "Boolean", "Boolean", 
+             "", 
+             "TMM, RLE, upperquartile",
+             "", 
+             "NA")
+)     
+
+colnames(table_1) <- c("Pipeline Steps", "Software", "Options", "Choices")
+
+table_1 |> kbl(format = "latex", booktabs = T,
+     longtable = T, linesep = "", 
+     caption = "Basic RNA-Seq Differential Analysis End-to-End Pipeline")
+```
+
 ## Quality Score Variance Due to Fasterq-dump Options 
 
 ```{r}
+#| echo: true
+#| eval: false
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
@@ -45,6 +120,8 @@ BiocManager::install("Rsubread")
 ```
 
 ```{r}
+#| echo: true
+#| eval: false
 library(ShortRead)
 
 sample_1_fq_1 <- readFastq("./data/dump_1/SRR31476642.fastq") 
@@ -53,6 +130,8 @@ sample_1_fq_3 <- readFastq("./data/dump_3/SRR31476642.fastq")
 ```
 
 ```{r}
+#| echo: true
+#| eval: false
 sample_1_fq_1_qual <- as(quality(sample_1_fq_1), "matrix")
 sample_1_fq_2_qual <- as(quality(sample_1_fq_2), "matrix")
 sample_1_fq_3_qual <- as(quality(sample_1_fq_3), "matrix")
@@ -62,6 +141,8 @@ sample_1_fq_12_qual_diff <- sample_1_fq_1_qual - sample_1_fq_2_qual
 ```
 
 ```{r}
+#| echo: true
+#| eval: false
 mean(sample_1_fq_13_qual_diff)
 mean(sample_1_fq_12_qual_diff)
 ```
@@ -69,12 +150,16 @@ mean(sample_1_fq_12_qual_diff)
 ## Comparing Alignment Accuracy  
 
 ```{r}
+#| echo: true
+#| eval: false
 fastq_files <- list.files(
     path = "./data/dump_1", pattern = "\\.fastq$", full.names = TRUE
 )
 ```
 
 ```{r}
+#| echo: true
+#| eval: false
 library(Rsubread)
 
 buildindex(basename="hg19_g1k",
@@ -93,6 +178,8 @@ align_reads <- function(file, index_base, output_dir) {
 ```
 
 ```{r}
+#| echo: true
+#| eval: false
 trim_reads <- function(file, quality_threshold = 20, min_length = 30) {
     fq <- readFastq(file)
     fq_filtered <- fq[
