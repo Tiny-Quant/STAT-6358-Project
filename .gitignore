@@ -11,3 +11,7 @@ salmon_index
 salmon_count_matrices
 
 *.gz
+
+indices/
+
+alpha_output/
