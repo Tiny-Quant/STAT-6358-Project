@@ -1,0 +1,45 @@
+Current Environment: rna_seq_env           *  /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env
+PATH: /hpc/sys/apps/apptainer/current/bin:/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin:/hpc/m3/apps/conda/condabin:/hpc/sys/apps/quota:/hpc/sys/apps/slurm/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+STAR location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR
+HISAT2 location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/hisat2
+Salmon location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/salmon
+Kallisto location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/kallisto
+Running job 12 with:
+  FASTQ = /lustre/work/client/projects/mmcgee/stat6358_1252_001/practice_folder/OvarianCancer/SRR31476642.fastq
+  Quality Threshold = 39
+  Aligner = HISAT2
+  Index = /users/hschuler/art_hunter/STAT-6358-Project/indices/HISAT2/genome
+Filtering FASTQ with threshold 39 using fastq-filter
+Running command: fastq-filter -q 39 -o /tmp/tmp.q9gHKR8L7Z.fastq /lustre/work/client/projects/mmcgee/stat6358_1252_001/practice_folder/OvarianCancer/SRR31476642.fastq
+03/30/2025 04:34:25:INFO:fastq-filter: input files: /lustre/work/client/projects/mmcgee/stat6358_1252_001/practice_folder/OvarianCancer/SRR31476642.fastq
+03/30/2025 04:34:25:INFO:fastq-filter: output files: /tmp/tmp.q9gHKR8L7Z.fastq
+03/30/2025 04:34:25:INFO:fastq-filter: average error rate: 0.00012589254117941674
+03/30/2025 04:34:36:INFO:fastq-filter: processed 23072356 reads.
+03/30/2025 04:34:36:INFO:fastq-filter: passed: 18737482 (81.21%)
+03/30/2025 04:34:36:INFO:fastq-filter: failed: 4334874 (18.79%)
+WARNING: While bind mounting '/work:/work': destination is already in the mount point list
+Running pipeline with parameters:
+$fastq
+[1] "/tmp/tmp.q9gHKR8L7Z.fastq"
+
+$index
+[1] "/users/hschuler/art_hunter/STAT-6358-Project/indices/HISAT2/genome"
+
+$aligner
+[1] "hisat2"
+
+$output_dir
+[1] "/users/hschuler/art_hunter/STAT-6358-Project/alpha_output/thr39_HISAT2"
+
+18737482 reads; of these:
+  18737482 (100.00%) were unpaired; of these:
+    737484 (3.94%) aligned 0 times
+    15502692 (82.74%) aligned exactly 1 time
+    2497306 (13.33%) aligned >1 times
+96.06% overall alignment rate
+sh: 1: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/samtools: not found
+Error in system(sprintf("%s view -c -F 4 %s", samtools_bin, sam_output),  : 
+  error in running command
+Calls: run_alignment -> system
+Execution halted
+Job 12 complete!

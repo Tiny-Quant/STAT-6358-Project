@@ -1,0 +1,40 @@
+Current Environment: rna_seq_env           *  /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env
+PATH: /hpc/sys/apps/apptainer/current/bin:/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin:/hpc/m3/apps/conda/condabin:/hpc/sys/apps/quota:/hpc/sys/apps/slurm/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+STAR location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR
+HISAT2 location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/hisat2
+Salmon location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/salmon
+Kallisto location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/kallisto
+Running job 4 with:
+  FASTQ = /lustre/work/client/projects/mmcgee/stat6358_1252_001/practice_folder/OvarianCancer/SRR31476642.fastq
+  Quality Threshold = 25
+  Aligner = Kallisto
+  Index = /users/hschuler/art_hunter/STAT-6358-Project/indices/Kallisto/transcripts.idx
+Filtering FASTQ with threshold 25 using fastq-filter
+Running command: fastq-filter -q 25 -o /tmp/tmp.iQQTmTRdWX.fastq /lustre/work/client/projects/mmcgee/stat6358_1252_001/practice_folder/OvarianCancer/SRR31476642.fastq
+03/30/2025 04:34:25:INFO:fastq-filter: input files: /lustre/work/client/projects/mmcgee/stat6358_1252_001/practice_folder/OvarianCancer/SRR31476642.fastq
+03/30/2025 04:34:25:INFO:fastq-filter: output files: /tmp/tmp.iQQTmTRdWX.fastq
+03/30/2025 04:34:25:INFO:fastq-filter: average error rate: 0.0031622776601683794
+03/30/2025 04:34:37:INFO:fastq-filter: processed 23072356 reads.
+03/30/2025 04:34:37:INFO:fastq-filter: passed: 22213471 (96.28%)
+03/30/2025 04:34:37:INFO:fastq-filter: failed: 858885 (3.72%)
+WARNING: While bind mounting '/work:/work': destination is already in the mount point list
+Running pipeline with parameters:
+$fastq
+[1] "/tmp/tmp.iQQTmTRdWX.fastq"
+
+$index
+[1] "/users/hschuler/art_hunter/STAT-6358-Project/indices/Kallisto/transcripts.idx"
+
+$aligner
+[1] "kallisto"
+
+$output_dir
+[1] "/users/hschuler/art_hunter/STAT-6358-Project/alpha_output/thr25_Kallisto"
+
+sh: 1: kallisto: not found
+Error in run_quantification(params$fastq, params$index, params$output_dir,  : 
+  Error: Quantification output file not found. Check module dependencies and paths.
+In addition: Warning message:
+In system(cmd) : error in running command
+Execution halted
+Job 4 complete!

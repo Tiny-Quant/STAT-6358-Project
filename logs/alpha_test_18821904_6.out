@@ -1,0 +1,47 @@
+Current Environment: rna_seq_env           *  /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env
+PATH: /hpc/sys/apps/apptainer/current/bin:/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin:/hpc/m3/apps/conda/condabin:/hpc/sys/apps/quota:/hpc/sys/apps/slurm/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+STAR location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR
+HISAT2 location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/hisat2
+Salmon location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/salmon
+Kallisto location: /projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/kallisto
+Running job 6 with:
+  FASTQ = /lustre/work/client/projects/mmcgee/stat6358_1252_001/practice_folder/OvarianCancer/SRR31476642.fastq
+  Quality Threshold = 30
+  Aligner = STAR
+  Index = /users/hschuler/art_hunter/STAT-6358-Project/indices/STAR/
+Filtering FASTQ with threshold 30 using fastq-filter
+Running command: fastq-filter -q 30 -o /tmp/tmp.bhmvZgm8at.fastq /lustre/work/client/projects/mmcgee/stat6358_1252_001/practice_folder/OvarianCancer/SRR31476642.fastq
+03/30/2025 04:34:25:INFO:fastq-filter: input files: /lustre/work/client/projects/mmcgee/stat6358_1252_001/practice_folder/OvarianCancer/SRR31476642.fastq
+03/30/2025 04:34:25:INFO:fastq-filter: output files: /tmp/tmp.bhmvZgm8at.fastq
+03/30/2025 04:34:25:INFO:fastq-filter: average error rate: 0.001
+03/30/2025 04:34:37:INFO:fastq-filter: processed 23072356 reads.
+03/30/2025 04:34:37:INFO:fastq-filter: passed: 21175350 (91.78%)
+03/30/2025 04:34:37:INFO:fastq-filter: failed: 1897006 (8.22%)
+WARNING: While bind mounting '/work:/work': destination is already in the mount point list
+Running pipeline with parameters:
+$fastq
+[1] "/tmp/tmp.bhmvZgm8at.fastq"
+
+$index
+[1] "/users/hschuler/art_hunter/STAT-6358-Project/indices/STAR/"
+
+$aligner
+[1] "star"
+
+$output_dir
+[1] "/users/hschuler/art_hunter/STAT-6358-Project/alpha_output/thr30_STAR"
+
+	/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR-avx2 --runThreadN 4 --genomeDir /users/hschuler/art_hunter/STAT-6358-Project/indices/STAR/ --readFilesIn /tmp/tmp.bhmvZgm8at.fastq --outFileNamePrefix /users/hschuler/art_hunter/STAT-6358-Project/alpha_output/thr30_STAR/tmp.bhmvZgm8at.fastq_STAR_
+	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+Mar 30 16:34:47 ..... started STAR run
+Mar 30 16:34:47 ..... loading genome
+Mar 30 16:35:03 ..... started mapping
+Mar 30 16:36:44 ..... finished mapping
+Mar 30 16:36:45 ..... finished successfully
+Warning messages:
+1: In run_alignment(params$fastq, params$index, params$output_dir,  :
+  NAs introduced by coercion
+2: In file.remove(file.path(output_dir, paste0(basename(fastq_file),  :
+  cannot remove file '/users/hschuler/art_hunter/STAT-6358-Project/alpha_output/thr30_STAR/tmp.bhmvZgm8at.fastq_STAR_Aligned.out.bam', reason 'No such file or directory'
+Pipeline execution complete.
+Job 6 complete!
