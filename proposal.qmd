@@ -20,9 +20,9 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 library(tidyverse)
 library(tidymodels)
 library(kableExtra)
+library(MASS)
 
-
-#tidymodels_prefer()
+tidymodels_prefer()
 ```
 
 # Abstract 
@@ -36,6 +36,8 @@ In the realm of RNA-Seq research, rigorous data preprocessing is a critical foun
 ```{r}
 #| echo: false
 #| align: center
+#| label: tbl-1
+#| tbl-cap: Basic RNA-Seq Differential Analysis End-to-End Pipeline
 table_1 <- data.frame(
     steps = c("1. Pull SRA data from the NIH.",
               "", 
@@ -45,13 +47,11 @@ table_1 <- data.frame(
               "", 
               "4. Trim excess bases.", "", 
               "",
-              "5. Align reads to a genome.", "", 
+              "5. Align and count genes.",
               "",
-              "6. Count genes.", "", "",
+              "6. Count normalization.", 
               "", 
-              "7. Count normalization.", 
-              "", 
-              "8. Differential expression analysis."),  
+              "7. Differential expression analysis."),  
     software = c("prefetch", 
                  "", 
                  "fasterq-dump", "", 
@@ -60,9 +60,7 @@ table_1 <- data.frame(
                  "", 
                  "fastp", "", 
                  "", 
-                 "Various", "", 
-                 "", 
-                 "featureCounts", "", "", 
+                 "Various",  
                  "", 
                  "edgeR", 
                  "",
@@ -75,10 +73,7 @@ table_1 <- data.frame(
                 "", 
                 "--trim_poly_g", "--trim_ploy_x", 
                 "", 
-                "Default", "", 
-                "", 
-                "-Q (minimum map quality.)", "-C (require pair agreement.)", 
-                    "-M (allow multi-map.)",
+                "Default",  
                 "", 
                 "calcNormFactors(method='X')", 
                 "", 
@@ -91,9 +86,7 @@ table_1 <- data.frame(
              "", 
              "Boolean", "Boolean", 
              "", 
-             "STAR, HISAT2", "Salmon, Kallisto", 
-             "", 
-             "Integer", "Boolean", "Boolean", 
+             "Salmon, Kallisto", 
              "", 
              "TMM, RLE, upperquartile",
              "", 
@@ -103,8 +96,101 @@ table_1 <- data.frame(
 colnames(table_1) <- c("Pipeline Steps", "Software", "Options", "Choices")
 
 table_1 |> kbl(format = "latex", booktabs = T,
-     longtable = T, linesep = "", 
-     caption = "Basic RNA-Seq Differential Analysis End-to-End Pipeline")
+     longtable = T, linesep = "")
+```
+
+### Statistical Model 
+
+Assume there are $n$ samples of $g$ gene counts. Let $B_g$ denote the count for gene $g$ report to the NIH database, and let $C_{gX}$ denote the count obtained from pipeline with choices $X$. Similar let $D_g$ and $E_{gX}$ denote the p-values obtained from `edgeR`. Now,    
+\begin{equation}
+    Y_{1X} = \frac 1 g \sum_{i=1}^g (C_{gX} - B_g)^2  
+\end{equation}
+and 
+\begin{equation} 
+    Y_{2X} = \frac 1 g \sum_{i=1}^g (E_{gX} - D_g)^2  
+\end{equation}
+Our primary analysis will focus on the two following regression models: 
+\begin{equation}
+    Y_{1X_i} = \beta_0 + \sum_{i=1}^p \beta_i X_i + 
+        \sum_{1\leq i < j \leq p} \beta_{ij}(X_i \times X_j) + \epsilon
+\end{equation}
+and 
+\begin{equation}
+    Y_{2X_i} = \beta_0 + \sum_{i=1}^p \beta_i X_i + 
+        \sum_{1\leq i < j \leq p} \beta_{ij}(X_i \times X_j) + \epsilon
+\end{equation}
+where $p$ is the number of pipeline choices from @tbl-1. The first model studies the effect of each pipeline choice, include all pairwise interactions, on the average square deviation from the official NIH count matrix. The second model does the same, but for the p-values from a differential expression analysis.  
+
+### Simulated Regression Power Analysis 
+
+```{r}
+set.seed(33025)
+
+num_predictors <- 50
+num_sig_predictors <- 5
+alpha <- 0.05
+effect_size_mean <- 0.1
+effect_size_sd <- 0.05
+
+iter <- 100
+sample_sizes <- seq(from = 60, to = 200, by = 10)
+
+simulate_reg <- function(sample_size, num_predictors, num_sig_predictors, 
+                           effect_size_mean, effect_size_sd){
+    X <- matrix(rnorm(sample_size * num_predictors), 
+                      nrow = sample_size, ncol = num_predictors)
+
+    colnames(X) <- paste0("X", 1:num_predictors)
+
+    true_coef <- rnorm(num_sig_predictors, effect_size_mean, effect_size_sd)
+    true_coef <- c(true_coef, rep(0, num_predictors - num_sig_predictors)) 
+
+    Y <- X %*% true_coef + rnorm(sample_size)
+    data <- data.frame(Y, X)
+
+    lm_fit <- lm(Y ~ X, data = data)
+    p_values <- summary(lm_fit)$coefficient[, 4][-1]
+
+    return(p_values)
+}
+
+power_reg <- function(sample_sizes, num_predictors, num_sig_predictors, 
+                      effect_size_mean, effect_size_sd, iter){
+    df <- data.frame()
+    for(sample_size in sample_sizes){
+        type_2_errors <- 0
+        type_1_errors <- 0
+        for(i in 1:iter){
+            p_values <- simulate_reg(
+                sample_size, num_predictors, num_sig_predictors, 
+                effect_size_mean, effect_size_sd
+            ) 
+            type_2_errors <- type_2_errors + 
+                sum(p_values[num_sig_predictors] > alpha)
+            
+            type_1_errors <- type_1_errors + 
+                sum(p_values[(num_sig_predictors + 1):num_predictors] < alpha)
+        }
+        power <- 1 - (type_2_errors / (iter * num_sig_predictors))
+        type_1_error_rate <- (
+            type_1_errors / (iter * (num_predictors - num_sig_predictors))
+        )
+        df <- rbind(df, c(sample_size, power, type_1_error_rate))
+    }
+    colnames(df) <- c("n", "Power", "Type I Error Rate")
+    return(df)
+}
+
+power_df <- power_reg(sample_sizes, num_predictors, num_sig_predictors, 
+          effect_size_mean, effect_size_sd, iter)
+```
+
+```{r}
+#| fig-cap: Multiple Linear Regression t-test Simulation Based Power Curve
+#| fig-align: center
+power_df |> ggplot(aes(x = n, y = Power)) + 
+            geom_line() + 
+            theme_bw()
 ```
 
 ## Quality Score Variance Due to Fasterq-dump Options 
