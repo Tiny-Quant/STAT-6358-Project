@@ -1,5 +1,5 @@
 ---
-title: "**Variance All the Way Down:** Quantifying the Uncertainty Introduced at each Stage of an End-to-End RNA-Seq Analysis"
+title: "**Variance All the Way Down:** Exploring the Impact of RNA-Seq Pipeline Choices on Differential Expression Variance"
 author: "Hunter Schuler and Art Tay"
 format:
   pdf:
@@ -29,14 +29,15 @@ tidymodels_prefer()
 
 In the realm of RNA-Seq research, rigorous data preprocessing is a critical foundation for meaningful analysis. Despite its importance, this preprocessing involves numerous stages, each introducing potential sources of variance. While previous studies have examined the overall variance between entire RNA-Seq pipelines, [@arora2020variability] [@tong2020impact], [@vieth2019systematic], the impact of individual stages remains less understood. We propose a comprehensive investigation into the variance introduced at each stage of RNA-Seq preprocessing. Our goal is to quantify these variances, study their distributions, and understand their statistical implications on downstream modeling. This will include exploring the multitude of decisions researchers face — from quality control to normalization — and evaluating how these choices propagate uncertainty through the analysis. Of particular interest is whether variance amplifies due to interactions between decisions made at different stages. By modeling these interactions, we aim to identify cases where suboptimal combinations of preprocessing choices exacerbate variability, potentially distorting biological interpretations. This work aims to provide researchers with actionable insights to mitigate preprocessing-induced variance, ultimately enhancing the reliability and reproducibility of RNA-Seq studies.
 
-# Preliminary Results
+# Question of Interest 
 
-## Code Availability & Reproducibility
+> How do discretionary choices made during RNA-Seq pipeline processing, such as ‘fasterq-dump‘ options, quality filtering threshold, the choice of aligner, and normalization method impact the variance of differential expression results?
 
-All code will be open sourced and available on GitHub. The repository will contain a `docker-compose.ylm` file that should allow the exact development environment to be recreated. An `R` package is insufficient due to a heavy use of command line tools, some of which are platform dependent. All code targets `linux` and builds off of the official `Bioconductor` docker image.  
+We hypothesize that differences in these choices will lead to significant variance in DE results, particularly in terms of how consistently differentially expressed genes are identified across pipeline variations. This variance could introduce substantial uncertainty into the interpretation of gene expression data, influencing biological conclusions.
 
-## Preliminary Methodology Section 
+# Ideas for Exploration
 
+## Regression Analysis  
 ```{r}
 #| echo: false
 #| align: center
@@ -103,8 +104,6 @@ table_1 |> kbl(format = "latex", booktabs = T,
      longtable = T, linesep = "")
 ```
 
-### Statistical Model 
-
 Assume there are $n$ samples of $G$ gene counts. Let $B_{gi}$ denote the count for gene $g$ in sample $i$ reported to the NIH database, and let $C_{giX}$ denote the count obtained from pipeline with choices $X$. Similar let $D_g$ and $E_{gX}$ denote the p-values obtained from `edgeR`. Now,    
 \begin{equation}
     Y_{1X} = \frac{1}{nG} \sum_{i=1}^n \sum_{g=1}^G (C_{giX} - B_{gi})^2  
@@ -125,8 +124,15 @@ and
 \end{equation}
 where $p$ is the number of pipeline choices from @tbl-1. The first model studies the effect of each pipeline choice, include all pairwise interactions, on the average square deviation from the official NIH count matrix. The second model does the same, but for the p-values from a differential expression analysis.  
 
+## Code Availability & Reproducibility
+
+All code will be open sourced and available on GitHub. The repository will contain a `docker-compose.ylm` file that should allow the exact development environment to be recreated. An `R` package is insufficient due to a heavy use of command line tools, some of which are platform dependent. All code targets `linux` and builds off of the official `Bioconductor` docker image.  
+
+# Preliminary Results
+
 ## Quality Score Variance Due to Fasterq-dump Options 
 
+Script that runs fasterq-dump with different options. 
 ```bash
 #!/bin/bash
 
@@ -155,6 +161,7 @@ done < "$ACCESSION_LIST"
 echo "Processing complete!"
 ```
 
+`R` code to analyze any differences in quality scores. 
 ```{r}
 #| echo: true
 #| eval: false
@@ -193,7 +200,7 @@ mean(sample_1_fq_13_qual_diff)
 mean(sample_1_fq_12_qual_diff)
 ```
 
-None of the `Fasterq-dump` options we tested resulted in differing quality scores.  
+None of the `fasterq-dump` options we tested resulted in differing quality scores.  
 
 ## Sampling Count Matrices under Different Pipeline Choices
 
