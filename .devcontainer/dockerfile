@@ -47,6 +47,14 @@ RUN curl -LO https://quarto.org/download/latest/quarto-linux-amd64.deb
 RUN gdebi --non-interactive quarto-linux-amd64.deb
 RUN quarto install tinytex
 
+# Install SRA toolkit. 
+RUN wget --output-document sratoolkit.tar.gz https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz && \
+    tar -vxzf sratoolkit.tar.gz && \
+    mkdir -p /opt/sra-tools && \ 
+    mv sratoolkit.* /opt/sra-tools && \ 
+    echo 'export PATH=/opt/sra-tools/sratoolkit.3.2.1-ubuntu64/bin:$PATH' >> ~/.bashrc
+    source ~/.bashrc
+
 # Set environment variables for locale
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en

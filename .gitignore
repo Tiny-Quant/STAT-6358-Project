@@ -3,3 +3,11 @@ dump_*/
 SRA/ 
 
 *_g1k*
+
+*.fastq
+
+salmon_index
+
+salmon_count_matrices
+
+*.gz
