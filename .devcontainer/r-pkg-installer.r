@@ -7,6 +7,7 @@ BiocManager::install("GEOquery")
 BiocManager::install("affy")
 BiocManager::install("limma")
 BiocManager::install("hgu133plus2.db")
+BiocManager::install("tximport")
 
 install.packages("tidyverse")
 install.packages("tidymodels")
