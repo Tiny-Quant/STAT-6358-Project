@@ -52,7 +52,7 @@ RUN wget --output-document sratoolkit.tar.gz https://ftp-trace.ncbi.nlm.nih.gov/
     tar -vxzf sratoolkit.tar.gz && \
     mkdir -p /opt/sra-tools && \ 
     mv sratoolkit.* /opt/sra-tools && \ 
-    echo 'export PATH=/opt/sra-tools/sratoolkit.3.2.1-ubuntu64/bin:$PATH' >> ~/.bashrc
+    echo 'export PATH=/opt/sra-tools/sratoolkit.3.2.1-ubuntu64/bin:$PATH' >> ~/.bashrc &&\
     source ~/.bashrc
 
 # Set environment variables for locale

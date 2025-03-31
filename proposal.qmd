@@ -1,6 +1,6 @@
 ---
 title: "**Variance All the Way Down:** Quantifying the Uncertainty Introduced at each Stage of an End-to-End RNA-Seq Analysis"
-author: "Art Tay"
+author: "Hunter Schuler and Art Tay"
 format:
   pdf:
      documentclass: article
@@ -27,9 +27,13 @@ tidymodels_prefer()
 
 # Abstract 
 
-In the realm of RNA-Seq research, rigorous data preprocessing is a critical foundation for meaningful analysis. Despite its importance, this preprocessing involves numerous stages, each introducing potential sources of variance. While previous studies have examined the overall variance across entire RNA-Seq pipelines, [@arora2020variability] [@tong2020impact], [@vieth2019systematic], the impact of individual stages remains less understood. We propose a comprehensive investigation into the variance introduced at each stage of RNA-Seq preprocessing. Our goal is to quantify these variances, study their distributions, and understand their statistical implications on downstream modeling. This will include exploring the multitude of decisions researchers face — from quality control to normalization and feature selection — and evaluating how these choices propagate uncertainty through the analysis. Of particular interest is whether variance amplifies due to interactions between decisions made at different stages. By modeling these interactions, we aim to identify cases where suboptimal combinations of preprocessing choices exacerbate variability, potentially distorting biological interpretations. Finally, we will assess various bias correction methods and uncertainty quantification strategies to incorporate into final models. This work aims to provide researchers with actionable insights and robust statistical tools to mitigate preprocessing-induced variance, ultimately enhancing the reliability and reproducibility of RNA-Seq studies.
+In the realm of RNA-Seq research, rigorous data preprocessing is a critical foundation for meaningful analysis. Despite its importance, this preprocessing involves numerous stages, each introducing potential sources of variance. While previous studies have examined the overall variance between entire RNA-Seq pipelines, [@arora2020variability] [@tong2020impact], [@vieth2019systematic], the impact of individual stages remains less understood. We propose a comprehensive investigation into the variance introduced at each stage of RNA-Seq preprocessing. Our goal is to quantify these variances, study their distributions, and understand their statistical implications on downstream modeling. This will include exploring the multitude of decisions researchers face — from quality control to normalization — and evaluating how these choices propagate uncertainty through the analysis. Of particular interest is whether variance amplifies due to interactions between decisions made at different stages. By modeling these interactions, we aim to identify cases where suboptimal combinations of preprocessing choices exacerbate variability, potentially distorting biological interpretations. This work aims to provide researchers with actionable insights to mitigate preprocessing-induced variance, ultimately enhancing the reliability and reproducibility of RNA-Seq studies.
 
 # Preliminary Results
+
+## Code Availability & Reproducibility
+
+All code will be open sourced and available on GitHub. The repository will contain a `docker-compose.ylm` file that should allow the exact development environment to be recreated. An `R` package is insufficient due to a heavy use of command line tools, some of which are platform dependent. All code targets `linux` and builds off of the official `Bioconductor` docker image.  
 
 ## Preliminary Methodology Section 
 
@@ -101,22 +105,22 @@ table_1 |> kbl(format = "latex", booktabs = T,
 
 ### Statistical Model 
 
-Assume there are $n$ samples of $g$ gene counts. Let $B_g$ denote the count for gene $g$ report to the NIH database, and let $C_{gX}$ denote the count obtained from pipeline with choices $X$. Similar let $D_g$ and $E_{gX}$ denote the p-values obtained from `edgeR`. Now,    
+Assume there are $n$ samples of $G$ gene counts. Let $B_{gi}$ denote the count for gene $g$ in sample $i$ reported to the NIH database, and let $C_{giX}$ denote the count obtained from pipeline with choices $X$. Similar let $D_g$ and $E_{gX}$ denote the p-values obtained from `edgeR`. Now,    
 \begin{equation}
-    Y_{1X} = \frac 1 g \sum_{i=1}^g (C_{gX} - B_g)^2  
+    Y_{1X} = \frac{1}{nG} \sum_{i=1}^n \sum_{g=1}^G (C_{giX} - B_{gi})^2  
 \end{equation}
 and 
 \begin{equation} 
-    Y_{2X} = \frac 1 g \sum_{i=1}^g (E_{gX} - D_g)^2  
+    Y_{2X} = \frac 1 G \sum_{g=1}^G (E_{gX} - D_g)^2  
 \end{equation}
 Our primary analysis will focus on the two following regression models: 
 \begin{equation}
-    Y_{1X_i} = \beta_0 + \sum_{i=1}^p \beta_i X_i + 
+    Y_{1X} = \beta_0 + \sum_{i=1}^p \beta_i X_i + 
         \sum_{1\leq i < j \leq p} \beta_{ij}(X_i \times X_j) + \epsilon
 \end{equation}
 and 
 \begin{equation}
-    Y_{2X_i} = \beta_0 + \sum_{i=1}^p \beta_i X_i + 
+    Y_{2X} = \beta_0 + \sum_{i=1}^p \beta_i X_i + 
         \sum_{1\leq i < j \leq p} \beta_{ij}(X_i \times X_j) + \epsilon
 \end{equation}
 where $p$ is the number of pipeline choices from @tbl-1. The first model studies the effect of each pipeline choice, include all pairwise interactions, on the average square deviation from the official NIH count matrix. The second model does the same, but for the p-values from a differential expression analysis.  
@@ -188,12 +192,41 @@ power_df <- power_reg(sample_sizes, num_predictors, num_sig_predictors,
 ```{r}
 #| fig-cap: Multiple Linear Regression t-test Simulation Based Power Curve
 #| fig-align: center
+#| label: fig-1
 power_df |> ggplot(aes(x = n, y = Power)) + 
             geom_line() + 
             theme_bw()
 ```
 
 ## Quality Score Variance Due to Fasterq-dump Options 
+
+```bash
+#!/bin/bash
+
+ACCESSION_LIST="SRR_Acc_List.txt"
+
+mkdir -p SRA
+mkdir -p dump_1 dump_2 dump_3
+
+while read -r SRR_ID; do
+
+    echo "Processing SRR ID: $SRR_ID"
+
+    prefetch $SRR_ID --output-directory SRA
+
+    # Option 1: Default
+    fasterq-dump SRA/$SRR_ID/$SRR_ID.sra --outdir dump_1 --split-files --progress 
+
+    # Option 2: Skip Technical 
+    fasterq-dump SRA/$SRR_ID/$SRR_ID.sra --outdir dump_2 --split-files --progress --skip-technical
+
+    # Option 3: 10 Threads
+    fasterq-dump SRA/$SRR_ID/$SRR_ID.sra --outdir dump_3 --split-files --progress --threads 10
+
+done < "$ACCESSION_LIST"
+
+echo "Processing complete!"
+```
 
 ```{r}
 #| echo: true
@@ -233,45 +266,79 @@ mean(sample_1_fq_13_qual_diff)
 mean(sample_1_fq_12_qual_diff)
 ```
 
-## Comparing Alignment Accuracy  
+None of the `Fasterq-dump` options we tested resulted in differing quality scores.  
 
-```{r}
-#| echo: true
-#| eval: false
-fastq_files <- list.files(
-    path = "./data/dump_1", pattern = "\\.fastq$", full.names = TRUE
-)
+## Sampling Count Matrices under Different Pipeline Choices
+
+Below is a script to sample 1 count matrix from an random pipeline that uses salmon as its aligner.  
+
+```bash
+#!/bin/bash
+
+THREADS=8
+SALMON_INDEX="salmon_index"
+TX2GENE="tx2gene.csv"
+SRR_LIST="../SRR_Acc_List.txt"  # File containing SRR IDs, one per line
+FASTQ_DIR="../fastq_data"
+OUTPUT_DIR="salmon_count_matrices"
+R_SCRIPT="generate_salmon_count_matrix.R"
+
+mkdir -p "$OUTPUT_DIR" "$FASTQ_DIR"
+
+TEMP_DIR=$(mktemp -d)
+
+PARAMS_STR=""
+# Randomly select parameters. 
+QUAL_PHRED=$(awk -v min=20 -v max=30 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')
+LEN_REQ=$(awk -v min=30 -v max=50 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')
+
+TRIM_G=$((RANDOM % 2))
+TRIM_X=$((RANDOM % 2))
+
+PARAMS_STR="Q${QUAL_PHRED}_L${LEN_REQ}_G${TRIM_G}_X${TRIM_X}"
+
+echo "Processed files with QUAL_PHRED=$QUAL_PHRED, LEN_REQ=$LEN_REQ, TRIM_G=$TRIM_G, TRIM_X=$TRIM_X"
+
+conda install -c bioconda fastp salmon
+
+for FILE in "$FASTQ_DIR"/*.fastq; do 
+
+    echo "Now processing $FILE..."
+
+    BASENAME=$(basename "$FILE" .fastq)
+
+    # Filter and trim based on sampled parameters. 
+    fastp \
+        --in1 "$FILE" \
+        --qualified_quality_phred "$QUAL_PHRED" \
+        --length_required "$LEN_REQ" \
+        $( [ "$TRIM_G" -eq 1 ] && echo "--trim_poly_g" ) \
+        $( [ "$TRIM_X" -eq 1 ] && echo "--trim_poly_x" ) \
+        --out1 "$TEMP_DIR/${BASENAME}_trimmed.fastq" \
+        --json "$TEMP_DIR/${BASENAME}_fastp.json" \
+        --html "$TEMP_DIR/${BASENAME}_fastp.html"
+
+    echo "hello" 
+
+    # Run Salmon quantification
+    salmon quant -i "$SALMON_INDEX" \
+        -l A \
+        -r "$TEMP_DIR/${BASENAME}_trimmed.fastq" \
+        -o "$TEMP_DIR/${BASENAME}_salmon" \
+        --gcBias --seqBias --validateMappings
+
+done
+
+# Define output file with selected parameters
+FINAL_COUNT_MATRIX="$OUTPUT_DIR/gene_count_matrix_${PARAMS_STR}.csv"
+
+# Run R script to generate gene count matrix
+Rscript "$R_SCRIPT" "$TEMP_DIR" "$FINAL_COUNT_MATRIX"
+
+# Remove temporary files
+rm -rf "$TEMP_DIR"
+
+echo "Pipeline complete. Final count matrix stored in $FINAL_COUNT_MATRIX"
 ```
 
-```{r}
-#| echo: true
-#| eval: false
-library(Rsubread)
-
-buildindex(basename="hg19_g1k",
-           reference="./data/human_g1k_v37.fasta",
-           memory=3600
-)
-
-align_reads <- function(file, index_base, output_dir) {
-  align(
-    index = index_base,
-    readfile1 = file,
-    output_file = file.path(output_dir, paste0(basename(file), ".bam")),
-    nthreads = 4
-  )
-}
-```
-
-```{r}
-#| echo: true
-#| eval: false
-trim_reads <- function(file, quality_threshold = 20, min_length = 30) {
-    fq <- readFastq(file)
-    fq_filtered <- fq[
-        alphabetScore(quality(fq)) >= quality_threshold & width(fq) >= min_length
-    ]
-    output_file <- sub(".fastq", "_trimmed.fastq", file)
-    writeFastq(fq_filtered, output_file, compress = FALSE)
-}
-```
+# References
