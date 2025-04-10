@@ -1,7 +1,7 @@
 load("apptainer")
 
-local img_name      = 'devcontainer_latest_amd64_2023_08_16_15_29_46.sif'
-local img_directory = '/lustre/work/client/users/ataychameekiatchai'
+local img_name      = 'devcontainer_latest_amd64_2025_04_10_17_14_00.sif'
+local img_directory = '/users/ataychameekiatchai/STAT-6358-Project/.devcontainer/' 
 local img_path      = pathJoin(img_directory, img_name)
 
 function build_command(cmd)
