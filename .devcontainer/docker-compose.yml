@@ -2,11 +2,13 @@ services:
 
   devcontainer:
     build:
-      context: .. # Look up a directory.
-      dockerfile: .devcontainer/Dockerfile
+      context: .  
+      dockerfile: dockerfile
+    image: devcontainer:latest
 
     volumes:
       # Mount one directory up to the container's repo folder.
       - ../:/repo
 
     command: sleep infinity 
+    platform: linux/amd64

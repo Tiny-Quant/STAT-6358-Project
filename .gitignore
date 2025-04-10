@@ -21,3 +21,5 @@ Homo_sapiens.GRCh38.cdna.all.fa
 Homo_sapiens.GRCh38.110.gtf
 
 HPC/job_*
+
+*.sif
