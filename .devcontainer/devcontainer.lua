@@ -1,6 +1,6 @@
 load("apptainer")
 
-local img_name      = 'devcontainer_latest_amd64_2025_04_10_17_14_00.sif'
+local img_name      = 'devcontainer_latest_amd64_2025_04_10_18_43_05.sif'
 local img_directory = '/users/ataychameekiatchai/STAT-6358-Project/.devcontainer/' 
 local img_path      = pathJoin(img_directory, img_name)
 
@@ -14,7 +14,4 @@ function build_command(cmd)
   set_shell_function(cmd, sh_cmd, csh_cmd)
 end
 
--- build_command('python3')
--- build_command('jupyter')
--- build_command('jupyter-lab')
-
+-- build_command('bash')

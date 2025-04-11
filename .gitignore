@@ -23,3 +23,4 @@ Homo_sapiens.GRCh38.110.gtf
 HPC/job_*
 
 *.sif
+.nfs*
