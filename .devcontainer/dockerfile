@@ -37,6 +37,8 @@ RUN conda clean --all --yes && \
     conda init bash
 RUN conda update libstdcxx-ng -c conda-forge
 RUN conda install conda-forge::radian
+RUN conda install -c bioconda salmon
+RUN conda install -c bioconda kallisto
 
 # Install R packages
 COPY r-pkg-installer.r /tmp/r-pkg-install.r
