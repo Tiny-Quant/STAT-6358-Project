@@ -8,9 +8,6 @@ GTF_FILE="gencode.v${GENCODE_VERSION}.annotation.gtf.gz"
 TX2GENE="tx2gene.csv"
 SALMON_INDEX="salmon_index"
 
-# Download salmon using conda. 
-conda install -c bioconda salmon
-
 # Download transcriptome FASTA if missing
 if [ ! -f "$TRANSCRIPTOME" ]; then
     echo "Downloading GENCODE transcriptome..."

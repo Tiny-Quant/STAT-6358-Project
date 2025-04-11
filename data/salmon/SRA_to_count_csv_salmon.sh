@@ -24,8 +24,6 @@ PARAMS_STR="Q${QUAL_PHRED}_L${LEN_REQ}_G${TRIM_G}_X${TRIM_X}"
 
 echo "Processed files with QUAL_PHRED=$QUAL_PHRED, LEN_REQ=$LEN_REQ, TRIM_G=$TRIM_G, TRIM_X=$TRIM_X"
 
-conda install -c bioconda fastp salmon
-
 for FILE in "$FASTQ_DIR"/*.fastq; do 
 
     echo "Now processing $FILE..."
