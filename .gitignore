@@ -11,6 +11,10 @@ salmon_index
 salmon_count_matrices
 
 *.gz
+*.gtf
+*.fa
+*.idx
+rsem_ref/
 
 indices/
 
