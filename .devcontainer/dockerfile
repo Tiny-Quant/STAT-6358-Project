@@ -11,6 +11,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential git bash curl wget vim gdebi-core \
     r-base-dev libssl-dev libxml2-dev libcurl4-openssl-dev \
+    parallel \
     bzip2 ca-certificates unzip locales && \ 
     locale-gen en_US.UTF-8 && \
     update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \ 
