@@ -1,0 +1,99 @@
+#!/bin/bash
+
+# Configuration
+THREADS=8
+PHRED_MIN=20
+PHRED_MAX=30
+LENGTH_MIN=30
+LENGTH_MAX=50
+ALIGNERS=(salmon kallisto rsem)
+
+# File paths. 
+SALMON_INDEX="../align_indices/salmon_index"
+KALLISTO_INDEX="../align_indices/kallisto_index.idx"
+RSEM_INDEX="../align_indices/rsem_ref"
+FASTQ_DIR="../fastq_data"
+
+#TEMP_DIR=$(mktemp -d)
+TEMP_DIR="test_dir"
+mkdir -p "$TEMP_DIR"
+
+# Sample pipeline parameters. 
+min_phred=$(( RANDOM % (PHRED_MAX - PHRED_MIN + 1) + PHRED_MIN ))
+min_length=$(( RANDOM % (LENGTH_MAX - LENGTH_MIN + 1) + LENGTH_MIN ))
+trim_poly_g=$(( RANDOM % 2 ))
+trim_poly_x=$(( RANDOM % 2 ))
+#aligner=${ALIGNERS[$(( RANDOM % ${#ALIGNERS[@]} ))]}
+aligner="kallisto"
+
+# Track start time
+start_time=$(date +%s)
+
+for FILE in "$FASTQ_DIR"/*.fastq; do 
+
+    echo "Now processing $FILE..."
+
+    BASENAME=$(basename "$FILE" .fastq)
+
+    # Filter and trim based on sampled parameters. 
+    fastp \
+        --in1 "$FILE" \
+        --qualified_quality_phred "$min_phred" \
+        --length_required "$min_length" \
+        $( [ "$trim_poly_g" -eq 1 ] && echo "--trim_poly_g" ) \
+        $( [ "$trim_poly_x" -eq 1 ] && echo "--trim_poly_x" ) \
+        --out1 "$TEMP_DIR/${BASENAME}_trimmed.fastq" \
+        --json "$TEMP_DIR/${BASENAME}_fastp.json" \
+        --html "$TEMP_DIR/${BASENAME}_fastp.html"
+
+    # Alignment. 
+    case $aligner in 
+        salmon) 
+            salmon quant -i "$SALMON_INDEX" \
+                -l A \
+                -r "$TEMP_DIR/${BASENAME}_trimmed.fastq" \
+                -o "$TEMP_DIR/${BASENAME}_salmon"
+                # --gcBias --seqBias --validateMappings
+            ;; 
+        kallisto)
+            kallisto quant -i "$KALLISTO_INDEX" \
+                -o "$TEMP_DIR/${BASENAME}_kallisto" \
+                -t $THREADS \
+                --single -l 200 -s 20 \
+                "$TEMP_DIR/${BASENAME}_trimmed.fastq"
+            ;; 
+        rsem) 
+            rsem-calculate-expression \
+                --bowtie2 \
+                --num-threads "$THREADS" \
+                "$TEMP_DIR/${BASENAME}_trimmed.fastq" \
+                "$RSEM_INDEX/rsem" \
+                "$TEMP_DIR/${BASENAME}_rsem"
+            ;;
+        *) 
+            echo "Invalid aligner: $aligner"
+            ;; 
+    esac 
+
+done
+
+# Record elapsed time
+end_time=$(date +%s)
+elapsed_sec=$(( end_time - start_time ))
+
+#export R_HOME=$(R RHOME)
+export R_HOME="/usr/local/bin/r"
+Rscript "./transform_sample.r" \
+    "$TEMP_DIR" \
+    "$aligner" \
+    "$min_phred" \
+    "$min_length" \
+    "$trim_poly_g" \
+    "$trim_poly_x" \
+    "$elapsed_sec"
+
+# Remove temporary files
+#rm -rf "$TEMP_DIR"
+
+echo "Pipeline sample complete." 
+
