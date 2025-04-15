@@ -37,10 +37,15 @@ RUN pip install --upgrade pip
 RUN conda clean --all --yes && \
     conda init bash
 RUN conda update libstdcxx-ng -c conda-forge
-RUN conda install conda-forge::radian
-RUN conda install -c bioconda salmon
-RUN conda install -c bioconda kallisto
-RUN conda install -c bioconda fastp
+RUN conda install -c conda-forge radian
+
+# Create conda environment for bioconda packages. 
+COPY py_env.yml /tmp/py_env.yml
+RUN conda env create -f /tmp/py_env.yml && \
+    conda clean --all --yes && \ 
+    conda init bash && \ 
+    echo "conda activate stat6358" >> ~/.bashrc
+ENV PATH=/opt/miniconda/envs/stat6358/bin:$PATH
 
 # Install R packages
 COPY r-pkg-installer.r /tmp/r-pkg-install.r
