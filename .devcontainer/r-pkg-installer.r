@@ -10,6 +10,7 @@ BiocManager::install("hgu133plus2.db")
 BiocManager::install("tximport")
 BiocManager::install("edgeR")
 BiocManager::install("rhdf5")
+BiocManager::install("ALDEx2")
 
 install.packages("tidyverse")
 install.packages("tidymodels")
