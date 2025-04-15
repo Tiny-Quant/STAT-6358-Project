@@ -17,7 +17,7 @@ KALLISTO_INDEX="../align_indices/kallisto_index.idx"
 FASTQ_DIR="../fastq_data"
 
 TEMP_DIR=$(mktemp -d)
-#TEMP_DIR="test_dir_salmon"
+#TEMP_DIR="test_dir"
 #mkdir -p "$TEMP_DIR"
 
 # Sample pipeline parameters. 
@@ -53,7 +53,8 @@ process_sample() {
         salmon quant -i "$SALMON_INDEX" \
           -l A \
           -r "$TEMP_DIR/${BASENAME}_trimmed.fastq" \
-          -o "$TEMP_DIR/${BASENAME}_salmon"
+          -o "$TEMP_DIR/${BASENAME}_salmon" \
+          --gcBias --seqBias --validateMappings
         ;;
       kallisto)
         kallisto quant -i "$KALLISTO_INDEX" \
@@ -81,15 +82,17 @@ export THREADS PHRED_MIN PHRED_MAX LENGTH_MIN LENGTH_MAX \
        SALMON_INDEX KALLISTO_INDEX RSEM_INDEX TEMP_DIR \
        min_phred min_length trim_poly_g trim_poly_x aligner
 
-parallel -j $THREADS --progress --bar --eta --verbose --linebuffer \
-    process_sample {} ::: "$FASTQ_DIR"/*.fastq
+find "$FASTQ_DIR" -name "*.fastq" -print0 | \
+parallel -0 -j "$THREADS" \
+  --progress --bar --eta --verbose --linebuffer \
+  process_sample {}
 
 # Record elapsed time
 end_time=$(date +%s)
 elapsed_sec=$(( end_time - start_time ))
 
 export PATH="/usr/local/bin:$PATH"
-Rscript "./transform_sample.r" \
+/usr/local/bin/Rscript "./transform_sample.r" \
     "$TEMP_DIR" \
     "$aligner" \
     "$min_phred" \

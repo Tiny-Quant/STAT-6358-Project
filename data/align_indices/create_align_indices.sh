@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
+set -euo pipefail # Exit on any fail. 
 
 # ----------------------------
-# CONFIGURATION (edit as needed)
+# CONFIGURATION
 # ----------------------------
 THREADS=8
 SPECIES="human"

@@ -1,5 +1,5 @@
 # Libraries
-library(tidyverse)
+library(tidymodels)
 library(edgeR)
 library(tximport)
 
