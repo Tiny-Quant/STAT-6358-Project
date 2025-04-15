@@ -48,6 +48,7 @@ RUN conda env create -f /tmp/py_env.yml && \
 ENV PATH=/opt/miniconda/envs/stat6358/bin:$PATH
 
 # Install R packages
+ENV PATH=/usr/local/bin:$PATH
 COPY r-pkg-installer.r /tmp/r-pkg-install.r
 RUN Rscript /tmp/r-pkg-install.r 
 
