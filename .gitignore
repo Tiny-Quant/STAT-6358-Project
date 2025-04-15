@@ -28,3 +28,5 @@ HPC/job_*
 
 *.sif
 .nfs*
+
+test_dir_rsem
