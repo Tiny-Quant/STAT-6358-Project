@@ -1,6 +1,6 @@
 load("apptainer")
 
-local img_name      = 'devcontainer_latest_amd64_2025_04_10_18_43_05.sif'
+local img_name      = 'devcontainer_latest_amd64_2025_04_15_13_24_10.sif'
 local img_directory = '/users/ataychameekiatchai/STAT-6358-Project/.devcontainer/' 
 local img_path      = pathJoin(img_directory, img_name)
 
