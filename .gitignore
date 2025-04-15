@@ -30,3 +30,4 @@ HPC/job_*
 .nfs*
 
 test_dir_rsem
+test_dir
