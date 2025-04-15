@@ -1,0 +1,3 @@
+# Remove from build context.
+*.sif
+*.log
