@@ -94,33 +94,33 @@ fi
 # ----------------------------
 # 4. Prepare RSEM (Bowtie2) reference
 # ----------------------------
-if [ ! -f "${GENOME_FASTA_GZ}" ]; then
-  echo "Downloading genome FASTA ${GENOME_FASTA_GZ}..."
-  wget -c "${GENOME_FASTA_URL}"
-else
-  echo "Skipping download of ${GENOME_FASTA_GZ}, already exists."
-fi
+# if [ ! -f "${GENOME_FASTA_GZ}" ]; then
+#   echo "Downloading genome FASTA ${GENOME_FASTA_GZ}..."
+#   wget -c "${GENOME_FASTA_URL}"
+# else
+#   echo "Skipping download of ${GENOME_FASTA_GZ}, already exists."
+# fi
 
-if [ ! -f "${GENOME_FASTA_GZ%.gz}" ]; then
-  echo "Unpacking ${GENOME_FASTA_GZ}..."
-  gunzip -kf "${GENOME_FASTA_GZ}"
-else
-  echo "Skipping unpack of ${GENOME_FASTA_GZ}, already unpacked."
-fi
+# if [ ! -f "${GENOME_FASTA_GZ%.gz}" ]; then
+#   echo "Unpacking ${GENOME_FASTA_GZ}..."
+#   gunzip -kf "${GENOME_FASTA_GZ}"
+# else
+#   echo "Skipping unpack of ${GENOME_FASTA_GZ}, already unpacked."
+# fi
 
-GENOME_FA="${GENOME_DIR}/${GENOME_FASTA_GZ%.gz}"
+# GENOME_FA="${GENOME_DIR}/${GENOME_FASTA_GZ%.gz}"
 
-if [ ! -f "${RSEM_REF}/rsem.transcripts.fa" ]; then
-  echo "Preparing RSEM reference (Bowtie2)..."
-  rsem-prepare-reference \
-    --bowtie2 \
-    --gtf "${ANNOTATION_GTF}" \
-    --num-threads ${THREADS} \
-    "${GENOME_FA}" \
-    "${RSEM_REF}/rsem"
-else
-  echo "Skipping RSEM reference; already exists at ${RSEM_REF}."
-fi
+# if [ ! -f "${RSEM_REF}/rsem.transcripts.fa" ]; then
+#   echo "Preparing RSEM reference (Bowtie2)..."
+#   rsem-prepare-reference \
+#     --bowtie2 \
+#     --gtf "${ANNOTATION_GTF}" \
+#     --num-threads ${THREADS} \
+#     "${GENOME_FA}" \
+#     "${RSEM_REF}/rsem"
+# else
+#   echo "Skipping RSEM reference; already exists at ${RSEM_REF}."
+# fi
 
 # ----------------------------
 # 5. Create tx2gene.csv
