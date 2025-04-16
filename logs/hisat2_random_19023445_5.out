@@ -1,0 +1,315 @@
+Running HISAT2 pipeline with parameters: Q28_L47_G0_X1_J19023445_5
+Processing SRR31476642
+Detecting adapter sequence for read1...
+>Nextera_LMP_Read1_External_Adapter | >Illumina Multiplexing Index Sequencing Primer
+GATCGGAAGAGCACACGTCTGAACTCCAGTCAC
+
+Read1 before filtering:
+total reads: 23072356
+total bases: 1153617800
+Q20 bases: 1148431484(99.5504%)
+Q30 bases: 1136859759(98.5473%)
+
+Read1 after filtering:
+total reads: 22796723
+total bases: 1139836150
+Q20 bases: 1135598699(99.6282%)
+Q30 bases: 1125385589(98.7322%)
+
+Filtering result:
+reads passed filter: 22796723
+reads failed due to low quality: 84894
+reads failed due to too many N: 723
+reads failed due to too short: 190016
+reads with adapter trimmed: 96543
+bases trimmed due to adapters: 3215987
+reads with polyX in 3' end: 94429
+bases trimmed in polyX tail: 1908460
+
+Duplication rate (may be overestimated since this is SE data): 62.7259%
+
+JSON report: /tmp/tmp.0MELLDd8Kl/SRR31476642_Q28_L47_G0_X1_J19023445_5_fastp.json
+HTML report: /tmp/tmp.0MELLDd8Kl/SRR31476642_Q28_L47_G0_X1_J19023445_5_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476642.fastq --qualified_quality_phred 28 --length_required 47 --trim_poly_x --out1 /tmp/tmp.0MELLDd8Kl/SRR31476642_Q28_L47_G0_X1_J19023445_5_trimmed.fastq --json /tmp/tmp.0MELLDd8Kl/SRR31476642_Q28_L47_G0_X1_J19023445_5_fastp.json --html /tmp/tmp.0MELLDd8Kl/SRR31476642_Q28_L47_G0_X1_J19023445_5_fastp.html 
+fastp v0.24.0, time used: 20 seconds
+22796723 reads; of these:
+  22796723 (100.00%) were unpaired; of these:
+    1008994 (4.43%) aligned 0 times
+    18753672 (82.26%) aligned exactly 1 time
+    3034057 (13.31%) aligned >1 times
+95.57% overall alignment rate
+Processing SRR31476643
+Detecting adapter sequence for read1...
+GCTACCTTTGCACGGTTAGGGTACCGCGGCCGTTAAACATGTGTCACTGGGCAGGCGGT
+
+Read1 before filtering:
+total reads: 21975689
+total bases: 1098784450
+Q20 bases: 1093492101(99.5183%)
+Q30 bases: 1081837660(98.4577%)
+
+Read1 after filtering:
+total reads: 21744029
+total bases: 1087201450
+Q20 bases: 1082843554(99.5992%)
+Q30 bases: 1072476795(98.6456%)
+
+Filtering result:
+reads passed filter: 21744029
+reads failed due to low quality: 83177
+reads failed due to too many N: 641
+reads failed due to too short: 147842
+reads with adapter trimmed: 44640
+bases trimmed due to adapters: 954333
+reads with polyX in 3' end: 104465
+bases trimmed in polyX tail: 2577675
+
+Duplication rate (may be overestimated since this is SE data): 63.4452%
+
+JSON report: /tmp/tmp.0MELLDd8Kl/SRR31476643_Q28_L47_G0_X1_J19023445_5_fastp.json
+HTML report: /tmp/tmp.0MELLDd8Kl/SRR31476643_Q28_L47_G0_X1_J19023445_5_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476643.fastq --qualified_quality_phred 28 --length_required 47 --trim_poly_x --out1 /tmp/tmp.0MELLDd8Kl/SRR31476643_Q28_L47_G0_X1_J19023445_5_trimmed.fastq --json /tmp/tmp.0MELLDd8Kl/SRR31476643_Q28_L47_G0_X1_J19023445_5_fastp.json --html /tmp/tmp.0MELLDd8Kl/SRR31476643_Q28_L47_G0_X1_J19023445_5_fastp.html 
+fastp v0.24.0, time used: 19 seconds
+21744029 reads; of these:
+  21744029 (100.00%) were unpaired; of these:
+    892073 (4.10%) aligned 0 times
+    17880142 (82.23%) aligned exactly 1 time
+    2971814 (13.67%) aligned >1 times
+95.90% overall alignment rate
+Processing SRR31476644
+Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Read1 before filtering:
+total reads: 20332624
+total bases: 1016631200
+Q20 bases: 1011795913(99.5244%)
+Q30 bases: 1001075820(98.4699%)
+
+Read1 after filtering:
+total reads: 20177834
+total bases: 1008891700
+Q20 bases: 1004910699(99.6054%)
+Q30 bases: 995371869(98.6599%)
+
+Filtering result:
+reads passed filter: 20177834
+reads failed due to low quality: 77944
+reads failed due to too many N: 658
+reads failed due to too short: 76188
+reads with adapter trimmed: 0
+bases trimmed due to adapters: 0
+reads with polyX in 3' end: 76733
+bases trimmed in polyX tail: 1541639
+
+Duplication rate (may be overestimated since this is SE data): 62.7177%
+
+JSON report: /tmp/tmp.0MELLDd8Kl/SRR31476644_Q28_L47_G0_X1_J19023445_5_fastp.json
+HTML report: /tmp/tmp.0MELLDd8Kl/SRR31476644_Q28_L47_G0_X1_J19023445_5_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476644.fastq --qualified_quality_phred 28 --length_required 47 --trim_poly_x --out1 /tmp/tmp.0MELLDd8Kl/SRR31476644_Q28_L47_G0_X1_J19023445_5_trimmed.fastq --json /tmp/tmp.0MELLDd8Kl/SRR31476644_Q28_L47_G0_X1_J19023445_5_fastp.json --html /tmp/tmp.0MELLDd8Kl/SRR31476644_Q28_L47_G0_X1_J19023445_5_fastp.html 
+fastp v0.24.0, time used: 19 seconds
+20177834 reads; of these:
+  20177834 (100.00%) were unpaired; of these:
+    1430214 (7.09%) aligned 0 times
+    16170942 (80.14%) aligned exactly 1 time
+    2576678 (12.77%) aligned >1 times
+92.91% overall alignment rate
+Processing SRR31476645
+Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Read1 before filtering:
+total reads: 23947987
+total bases: 1197399350
+Q20 bases: 1191793112(99.5318%)
+Q30 bases: 1179362266(98.4936%)
+
+Read1 after filtering:
+total reads: 23750327
+total bases: 1187516350
+Q20 bases: 1182908571(99.612%)
+Q30 bases: 1171859304(98.6815%)
+
+Filtering result:
+reads passed filter: 23750327
+reads failed due to low quality: 90841
+reads failed due to too many N: 652
+reads failed due to too short: 106167
+reads with adapter trimmed: 0
+bases trimmed due to adapters: 0
+reads with polyX in 3' end: 106991
+bases trimmed in polyX tail: 2456666
+
+Duplication rate (may be overestimated since this is SE data): 63.6719%
+
+JSON report: /tmp/tmp.0MELLDd8Kl/SRR31476645_Q28_L47_G0_X1_J19023445_5_fastp.json
+HTML report: /tmp/tmp.0MELLDd8Kl/SRR31476645_Q28_L47_G0_X1_J19023445_5_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476645.fastq --qualified_quality_phred 28 --length_required 47 --trim_poly_x --out1 /tmp/tmp.0MELLDd8Kl/SRR31476645_Q28_L47_G0_X1_J19023445_5_trimmed.fastq --json /tmp/tmp.0MELLDd8Kl/SRR31476645_Q28_L47_G0_X1_J19023445_5_fastp.json --html /tmp/tmp.0MELLDd8Kl/SRR31476645_Q28_L47_G0_X1_J19023445_5_fastp.html 
+fastp v0.24.0, time used: 20 seconds
+23750327 reads; of these:
+  23750327 (100.00%) were unpaired; of these:
+    1365824 (5.75%) aligned 0 times
+    19290800 (81.22%) aligned exactly 1 time
+    3093703 (13.03%) aligned >1 times
+94.25% overall alignment rate
+Processing SRR31476646
+Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Read1 before filtering:
+total reads: 24369744
+total bases: 1218487200
+Q20 bases: 1212588310(99.5159%)
+Q30 bases: 1199663786(98.4552%)
+
+Read1 after filtering:
+total reads: 24164964
+total bases: 1208248200
+Q20 bases: 1203413166(99.5998%)
+Q30 bases: 1191926962(98.6492%)
+
+Filtering result:
+reads passed filter: 24164964
+reads failed due to low quality: 95245
+reads failed due to too many N: 759
+reads failed due to too short: 108776
+reads with adapter trimmed: 0
+bases trimmed due to adapters: 0
+reads with polyX in 3' end: 109656
+bases trimmed in polyX tail: 2643826
+
+Duplication rate (may be overestimated since this is SE data): 63.5263%
+
+JSON report: /tmp/tmp.0MELLDd8Kl/SRR31476646_Q28_L47_G0_X1_J19023445_5_fastp.json
+HTML report: /tmp/tmp.0MELLDd8Kl/SRR31476646_Q28_L47_G0_X1_J19023445_5_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476646.fastq --qualified_quality_phred 28 --length_required 47 --trim_poly_x --out1 /tmp/tmp.0MELLDd8Kl/SRR31476646_Q28_L47_G0_X1_J19023445_5_trimmed.fastq --json /tmp/tmp.0MELLDd8Kl/SRR31476646_Q28_L47_G0_X1_J19023445_5_fastp.json --html /tmp/tmp.0MELLDd8Kl/SRR31476646_Q28_L47_G0_X1_J19023445_5_fastp.html 
+fastp v0.24.0, time used: 20 seconds
+24164964 reads; of these:
+  24164964 (100.00%) were unpaired; of these:
+    1600304 (6.62%) aligned 0 times
+    19364013 (80.13%) aligned exactly 1 time
+    3200647 (13.24%) aligned >1 times
+93.38% overall alignment rate
+Processing SRR31476647
+Detecting adapter sequence for read1...
+AGGGTTCTGTGGGCAAATTTAAAGTTGAACTAAGATTCTATCTTGGACAACCAGCTATCA
+
+Read1 before filtering:
+total reads: 21128593
+total bases: 1056429650
+Q20 bases: 1051345318(99.5187%)
+Q30 bases: 1040098453(98.4541%)
+
+Read1 after filtering:
+total reads: 20884068
+total bases: 1044203400
+Q20 bases: 1040020061(99.5994%)
+Q30 bases: 1030036465(98.6433%)
+
+Filtering result:
+reads passed filter: 20884068
+reads failed due to low quality: 80906
+reads failed due to too many N: 620
+reads failed due to too short: 162999
+reads with adapter trimmed: 73705
+bases trimmed due to adapters: 1222081
+reads with polyX in 3' end: 90513
+bases trimmed in polyX tail: 1985158
+
+Duplication rate (may be overestimated since this is SE data): 62.8678%
+
+JSON report: /tmp/tmp.0MELLDd8Kl/SRR31476647_Q28_L47_G0_X1_J19023445_5_fastp.json
+HTML report: /tmp/tmp.0MELLDd8Kl/SRR31476647_Q28_L47_G0_X1_J19023445_5_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476647.fastq --qualified_quality_phred 28 --length_required 47 --trim_poly_x --out1 /tmp/tmp.0MELLDd8Kl/SRR31476647_Q28_L47_G0_X1_J19023445_5_trimmed.fastq --json /tmp/tmp.0MELLDd8Kl/SRR31476647_Q28_L47_G0_X1_J19023445_5_fastp.json --html /tmp/tmp.0MELLDd8Kl/SRR31476647_Q28_L47_G0_X1_J19023445_5_fastp.html 
+fastp v0.24.0, time used: 19 seconds
+20884068 reads; of these:
+  20884068 (100.00%) were unpaired; of these:
+    842052 (4.03%) aligned 0 times
+    17165215 (82.19%) aligned exactly 1 time
+    2876801 (13.78%) aligned >1 times
+95.97% overall alignment rate
+Processing SRR31476648
+Detecting adapter sequence for read1...
+GCTACCTTTGCACGGTTAGGGTACCGCGGCCGTTAAACATGTGTCACTGGGCAGGCGGT
+
+Read1 before filtering:
+total reads: 24051034
+total bases: 1202551700
+Q20 bases: 1196586391(99.5039%)
+Q30 bases: 1183492353(98.4151%)
+
+Read1 after filtering:
+total reads: 23787371
+total bases: 1189368550
+Q20 bases: 1184467662(99.5879%)
+Q30 bases: 1172829281(98.6094%)
+
+Filtering result:
+reads passed filter: 23787371
+reads failed due to low quality: 94547
+reads failed due to too many N: 691
+reads failed due to too short: 168425
+reads with adapter trimmed: 53041
+bases trimmed due to adapters: 1104222
+reads with polyX in 3' end: 116643
+bases trimmed in polyX tail: 2820596
+
+Duplication rate (may be overestimated since this is SE data): 64.132%
+
+JSON report: /tmp/tmp.0MELLDd8Kl/SRR31476648_Q28_L47_G0_X1_J19023445_5_fastp.json
+HTML report: /tmp/tmp.0MELLDd8Kl/SRR31476648_Q28_L47_G0_X1_J19023445_5_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476648.fastq --qualified_quality_phred 28 --length_required 47 --trim_poly_x --out1 /tmp/tmp.0MELLDd8Kl/SRR31476648_Q28_L47_G0_X1_J19023445_5_trimmed.fastq --json /tmp/tmp.0MELLDd8Kl/SRR31476648_Q28_L47_G0_X1_J19023445_5_fastp.json --html /tmp/tmp.0MELLDd8Kl/SRR31476648_Q28_L47_G0_X1_J19023445_5_fastp.html 
+fastp v0.24.0, time used: 23 seconds
+23787371 reads; of these:
+  23787371 (100.00%) were unpaired; of these:
+    1136764 (4.78%) aligned 0 times
+    19393254 (81.53%) aligned exactly 1 time
+    3257353 (13.69%) aligned >1 times
+95.22% overall alignment rate
+Processing SRR31476650
+Detecting adapter sequence for read1...
+GCTACCTTTGCACGGTTAGGGTACCGCGGCCGTTAAACATGTGTCACTGGGCAGGCGGTG
+
+Read1 before filtering:
+total reads: 26621475
+total bases: 1331073750
+Q20 bases: 1325207346(99.5593%)
+Q30 bases: 1312085210(98.5734%)
+
+Read1 after filtering:
+total reads: 26351804
+total bases: 1317590200
+Q20 bases: 1312771651(99.6343%)
+Q30 bases: 1301141659(98.7516%)
+
+Filtering result:
+reads passed filter: 26351804
+reads failed due to low quality: 95816
+reads failed due to too many N: 821
+reads failed due to too short: 173034
+reads with adapter trimmed: 61212
+bases trimmed due to adapters: 1383313
+reads with polyX in 3' end: 112985
+bases trimmed in polyX tail: 2478553
+
+Duplication rate (may be overestimated since this is SE data): 65.4781%
+
+JSON report: /tmp/tmp.0MELLDd8Kl/SRR31476650_Q28_L47_G0_X1_J19023445_5_fastp.json
+HTML report: /tmp/tmp.0MELLDd8Kl/SRR31476650_Q28_L47_G0_X1_J19023445_5_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476650.fastq --qualified_quality_phred 28 --length_required 47 --trim_poly_x --out1 /tmp/tmp.0MELLDd8Kl/SRR31476650_Q28_L47_G0_X1_J19023445_5_trimmed.fastq --json /tmp/tmp.0MELLDd8Kl/SRR31476650_Q28_L47_G0_X1_J19023445_5_fastp.json --html /tmp/tmp.0MELLDd8Kl/SRR31476650_Q28_L47_G0_X1_J19023445_5_fastp.html 
+fastp v0.24.0, time used: 24 seconds
+26351804 reads; of these:
+  26351804 (100.00%) were unpaired; of these:
+    1176836 (4.47%) aligned 0 times
+    21530045 (81.70%) aligned exactly 1 time
+    3644923 (13.83%) aligned >1 times
+95.53% overall alignment rate
+✅ HISAT2 pipeline complete with configuration: Q28_L47_G0_X1_J19023445_5
