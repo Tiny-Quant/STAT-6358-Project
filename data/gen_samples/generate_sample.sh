@@ -16,9 +16,11 @@ KALLISTO_INDEX="../align_indices/kallisto_index.idx"
 #RSEM_INDEX="../align_indices/rsem_ref"
 FASTQ_DIR="../fastq_data"
 
-TEMP_DIR=$(mktemp -d)
+#TEMP_DIR=$(mktemp -d)
 #TEMP_DIR="test_dir"
 #mkdir -p "$TEMP_DIR"
+TEMP_DIR = "${PWD}/tmp_parallel_$$"
+mkdir -p "$TEMP_DIR"
 
 # Sample pipeline parameters. 
 min_phred=$(( RANDOM % (PHRED_MAX - PHRED_MIN + 1) + PHRED_MIN ))
@@ -83,15 +85,18 @@ export THREADS PHRED_MIN PHRED_MAX LENGTH_MIN LENGTH_MAX \
        min_phred min_length trim_poly_g trim_poly_x aligner
 
 find "$FASTQ_DIR" -name "*.fastq" -print0 | \
-parallel -0 -j "$THREADS" \
-  --progress --bar --eta --verbose --linebuffer \
-  process_sample {}
+    parallel -0 -j "$THREADS" \
+        --tmpdir "$TEMP_DIR" \
+        --compress \
+        --will-cite \
+        --bar --eta --linebuffer \
+        process_sample {}
 
 # Record elapsed time
 end_time=$(date +%s)
 elapsed_sec=$(( end_time - start_time ))
 
-export PATH="/usr/local/bin:$PATH"
+#export PATH="/usr/local/bin:$PATH"
 /usr/local/bin/Rscript "./transform_sample.r" \
     "$TEMP_DIR" \
     "$aligner" \
