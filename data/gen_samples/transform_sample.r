@@ -2,11 +2,12 @@
 library(tidymodels)
 library(edgeR)
 library(tximport)
+library(ALDEx2)
 
-# Create baseline files if they don't already exist. 
-
-# Meta-Data from:  
-# https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA1189593&o=acc_s%3Aa
+#############
+# Meta-Data # 
+#############
+# ref: https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA1189593&o=acc_s%3Aa
 
 sample_names <- c(
   "gene", 
@@ -33,6 +34,10 @@ treatments <- c(
     "DMSO"  
 )
 
+#########################
+# Create Baseline Files #
+#########################
+
 if (file.exists("nih_counts.csv")) {
     message("nih_counts.csv already exists.")
 } else {
@@ -42,7 +47,7 @@ if (file.exists("nih_counts.csv")) {
     colnames(nih_count_matrix) <- sample_names
 
     nih_count_matrix <- nih_count_matrix |>
-        mutate(gene = str_remove(gene, "\\..*$"))
+        mutate(gene = stringr::str_remove(gene, "\\..*$"))
 
     nih_count_vector <- nih_count_matrix |> 
         pivot_longer(cols = -gene, names_to = "sample", values_to = "count")
@@ -50,15 +55,15 @@ if (file.exists("nih_counts.csv")) {
     write.csv(nih_count_vector, file = "nih_counts.csv", row.names = FALSE)
 }
 
-if (file.exists("nih_p_values.csv")) {
-    message("nih_p_values.csv already exists.")
+if (file.exists("nih_DE.csv")) {
+    message("nih_DE.csv already exists.")
 } else {
-    message("Generating: nih_p_values.csv")
+    message("Generating: nih_DE.csv")
 
     nih_count_matrix <- read.csv("../GSE282674_ovcar4_count_table.csv")
     colnames(nih_count_matrix) <- sample_names
     nih_count_matrix <- nih_count_matrix |>
-        mutate(gene = str_remove(gene, "\\..*$"))
+        mutate(gene = stringr::str_remove(gene, "\\..*$"))
 
     nih_dgelist <- DGEList(
         counts = nih_count_matrix[, -1], 
@@ -72,14 +77,19 @@ if (file.exists("nih_p_values.csv")) {
     nih_fit <- glmFit(nih_dgelist, design)
     nih_LRT <- glmLRT(nih_fit, coef = 2)
 
-    nih_p_values <- topTags(nih_LRT, n = Inf)$table
-    nih_p_values <- data.frame(
-        gene = nih_p_values$genes, 
-        p_value = nih_p_values$PValue
+    nih_DE <- topTags(nih_LRT, n = Inf)$table
+    nih_DE <- data.frame(
+        gene = nih_DE$genes, 
+        p_value = nih_DE$PValue, 
+        effect_size = nih_DE$logFC
     )
 
-    write.csv(nih_p_values, file = "nih_p_values.csv", row.names = FALSE)
+    write.csv(nih_DE, file = "nih_DE.csv", row.names = FALSE)
 }
+
+################################################################################
+
+start_time <- proc.time()[3]
 
 # Read in sample count matrix from pipeline. 
 args <- commandArgs(trailingOnly = TRUE)
@@ -92,7 +102,10 @@ trim_poly_g   <- args[5]
 trim_poly_x   <- args[6]
 runtime_sec   <- as.numeric(args[7])
 
-# Generate count matrix. 
+#########################
+# Generate Count Matrix #
+#########################
+
 tx2gene <- read.csv("../align_indices/tx2gene.csv")
 sample_dirs <- list.dirs(sample_dir, recursive = FALSE, full.name = TRUE)
 
@@ -134,7 +147,9 @@ if (aligner == "salmon") {
     message("Invalid aligner: ", aligner)
 }
 
-# Compute count statistic. 
+############################
+# Compute Count Statistics #
+############################
 
 nih_count_vector <- read.csv("./nih_counts.csv")
 
@@ -156,69 +171,108 @@ overlap_count <- inner_join(
 ) |> nrow()
 overlap_count_percent <- 100 * overlap_count / nrow(joined_counts)
 
+count_end_time <- proc.time()[3]
 
 sample_count_data <- c(
     count_sd, 
     aligner, min_phred, min_length, trim_poly_g, trim_poly_x, 
-    runtime_sec, overlap_count_percent 
+    runtime_sec + count_end_time - start_time, 
+    overlap_count_percent 
 )
 
-# Compute p-value statistic. 
+##############################################
+# Compute Differential Expression Statistics #
+##############################################
 
-sample_dgelist <- DGEList(
-    counts = sample_count_df[, -1], 
-    genes = sample_count_df$gene, 
-    group = as.factor(treatments)
-)
-
-nih_p_values <- read.csv("./nih_p_values.csv")
-
-sample_dgelist <- sample_dgelist[
-    filterByExpr(sample_dgelist), , keep.lib.sizes = FALSE
-]
-sample_dgelist <- estimateDisp(sample_dgelist)
+nih_DE <- read.csv("./nih_DE.csv")
 
 # Random select a normalization method. 
-norm_methods <- c("default", "TMM", "RLE", "upperquartile")
-method_choice <- sample(norm_methods, 1)
+norm_methods <- c("default", "TMM", "RLE", "upperquartile", "ALDEx2")
+#method_choice <- sample(norm_methods, 1)
+method_choice <- "default"
 
-if (method_choice == "default") {
-    sample_dgelist <- calcNormFactors(sample_dgelist)
+if (method_choice == "ALDEx2"){
+    aldex_count_matrix <- (
+        sample_count_df |> 
+            column_to_rownames(var = "gene") |>
+            mutate(
+                across(
+                    where(is.numeric), ~ round(as.integer(.))
+                )
+            )
+    )
+
+    aldex_results <- aldex(
+        reads = aldex_count_matrix,
+        conditions = treatments |> as.factor() |> as.numeric()
+    )
+
+    sample_DE <- data.frame(
+        gene = rownames(aldex_results), 
+        p_value = aldex_results$we.eBH, 
+        effect_size = aldex_results$effect
+    )
+
 } else {
-    sample_dgelist <- calcNormFactors(sample_dgelist, method = method_choice)
+    sample_dgelist <- DGEList(
+        counts = sample_count_df[, -1], 
+        genes = sample_count_df$gene, 
+        group = as.factor(treatments)
+    )
+
+    sample_dgelist <- sample_dgelist[
+        filterByExpr(sample_dgelist), , keep.lib.sizes = FALSE
+    ]
+    sample_dgelist <- estimateDisp(sample_dgelist)
+
+    if (method_choice == "default") {
+        sample_dgelist <- calcNormFactors(sample_dgelist)
+    } else {
+        sample_dgelist <- calcNormFactors(sample_dgelist, method = method_choice)
+    }
+
+    design <- model.matrix(~as.factor(treatments))
+    sample_fit <- glmFit(sample_dgelist, design)
+    sample_LRT <- glmLRT(sample_fit, coef = 2)
+
+    sample_DE <- topTags(sample_LRT, n = Inf)$table
+    sample_DE <- data.frame(
+        gene = sample_DE$genes, 
+        p_value = sample_DE$PValue, 
+        effect_size = sample_DE$logFC
+    )
 }
 
-design <- model.matrix(~as.factor(treatments))
-sample_fit <- glmFit(sample_dgelist, design)
-sample_LRT <- glmLRT(sample_fit, coef = 2)
-
-sample_p_values <- topTags(sample_LRT, n = Inf)$table
-sample_p_values <- data.frame(
-    gene = sample_p_values$genes, 
-    p_value = sample_p_values$PValue
-)
-
-joined_p_values <- full_join(
-    sample_p_values, nih_p_values, by = join_by(gene)
+joined_DE <- full_join(
+    sample_DE, nih_DE, by = join_by(gene)
 ) |> mutate(across(where(is.numeric), ~replace_na(., 1)))
 
-p_value_var <- sum((joined_p_values$p_value.x - joined_p_values$p_value.y)^2)
-p_value_sd <- sqrt(p_value_var / nrow(joined_p_values))
+p_value_var <- sum((joined_DE$p_value.x - joined_DE$p_value.y)^2)
+p_value_sd <- sqrt(p_value_var / nrow(joined_DE))
+
+effect_size_var <- sum((joined_DE$effect_size.x - joined_DE$effect_size.y)^2)
+effect_size_sd <- sqrt(effect_size_var / nrow(joined_DE))
 
 # Calculate overlap. 
-overlap_p_value <- inner_join(
-    sample_p_values, nih_p_values, by = join_by(gene)
+overlap_DE <- inner_join(
+    sample_DE, nih_DE, by = join_by(gene)
 ) |> nrow()
-overlap_p_value_percent <- 100 * overlap_p_value / nrow(joined_p_values)
+overlap_DE_percent <- 100 * overlap_DE / nrow(joined_DE)
 
-sample_p_value_data <- c(
+DE_end_time <- proc.time()[3]
+
+sample_DE_data <- c(
     p_value_sd, 
+    effect_size_sd, 
     aligner, min_phred, min_length, trim_poly_g, trim_poly_x, 
-    runtime_sec, 
-    method_choice, overlap_p_value_percent
+    runtime_sec + DE_end_time - count_end_time, 
+    method_choice, overlap_DE_percent
 )
 
-# Output sample. 
+#################
+# Output sample #
+#################
+
 unique_id <- paste0(
     format(Sys.time(), "%Y%m%d_%H%M%S"), "_", sample(10000:99999, 1)
 )
@@ -232,9 +286,9 @@ write.csv(
 )
 
 write.csv(
-    sample_p_value_data, 
+    sample_DE_data, 
     file = paste0(
-        "./p_value_sd_samples/", "p_value_sd_sample_", unique_id, ".csv"
+        "./DE_sd_samples/", "DE_sd_sample_", unique_id, ".csv"
     ), 
     row.names = FALSE 
 )
