@@ -31,3 +31,6 @@ HPC/job_*
 
 test_dir_rsem
 test_dir
+
+count_sd_samples/
+DE_sd_samples/
