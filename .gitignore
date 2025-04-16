@@ -18,8 +18,6 @@ rsem_ref/
 
 indices/
 
-alpha_output/
-
 Homo_sapiens.GRCh38.dna.primary_assembly.fa
 Homo_sapiens.GRCh38.cdna.all.fa
 Homo_sapiens.GRCh38.110.gtf
