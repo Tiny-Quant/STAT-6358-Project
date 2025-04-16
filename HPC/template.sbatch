@@ -25,7 +25,7 @@
 
 # Specify an accurate time limit for efficient scheduling so your job runs promptly.
 
-#SBATCH -t 0-1:0:0
+#SBATCH -t 0-2:0:0
 
 
 
@@ -58,9 +58,9 @@ module use /users/ataychameekiatchai/STAT-6358-Project/.devcontainer/
 module load devcontainer
 singularity exec \
   --bind /users/ataychameekiatchai/STAT-6358-Project \
-  --pwd /users/ataychameekiatchai/STAT-6358-Project/data \
-  /users/ataychameekiatchai/STAT-6358-Project/.devcontainer/devcontainer_latest_amd64_2025_04_10_18_43_05.sif \
-  bash pull_SRA_and_fastq.sh
+  --pwd /users/ataychameekiatchai/STAT-6358-Project/data/align_indices \
+  /users/ataychameekiatchai/STAT-6358-Project/.devcontainer/devcontainer_latest_amd64_2025_04_15_13_24_10.sif \
+  bash create_align_indices.sh
 pwd
 
 
