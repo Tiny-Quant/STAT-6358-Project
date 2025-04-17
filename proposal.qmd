@@ -8,6 +8,7 @@ format:
      geometry:
          margin=1in
      include-in-header: header.tex
+     keep-tex: true
 bibliography: references.bib
 csl: american-statistical-association.csl
 ---
