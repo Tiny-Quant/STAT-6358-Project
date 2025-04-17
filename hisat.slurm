@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=128G
 #SBATCH --time=2:00:00
-#SBATCH --partition=standard-s
+#SBATCH --partition=htc
 #SBATCH --account=mmcgee_stat6358_1252_001_0001
 
 
