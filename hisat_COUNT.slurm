@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=HISAT2_count
 #SBATCH --output=logs/hisat2_count_%A_%a.out
-#SBATCH --array=1-2
+#SBATCH --array=1-90
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=128G
 #SBATCH --time=1:00:00

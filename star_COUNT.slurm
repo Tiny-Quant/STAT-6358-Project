@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=STAR_count
 #SBATCH --output=logs/star_count_%A_%a.out
-#SBATCH --array=1-80
+#SBATCH --array=1-90
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --time=1:00:00
