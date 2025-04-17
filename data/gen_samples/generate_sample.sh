@@ -19,8 +19,9 @@ FASTQ_DIR="../fastq_data"
 #TEMP_DIR=$(mktemp -d)
 #TEMP_DIR="test_dir"
 #mkdir -p "$TEMP_DIR"
-TEMP_DIR = "${PWD}/tmp_parallel_$$"
+TEMP_DIR="/lustre/scratch/client/users/ataychameekiatchai/tmp_parallel_$$"
 mkdir -p "$TEMP_DIR"
+trap 'echo "Cleaning up $TEMP_DIR"; rm -rf "$TEMP_DIR"' EXIT # Clear files on any script exit. 
 
 # Sample pipeline parameters. 
 min_phred=$(( RANDOM % (PHRED_MAX - PHRED_MIN + 1) + PHRED_MIN ))
@@ -83,9 +84,10 @@ export -f process_sample
 export THREADS PHRED_MIN PHRED_MAX LENGTH_MIN LENGTH_MAX \
        SALMON_INDEX KALLISTO_INDEX RSEM_INDEX TEMP_DIR \
        min_phred min_length trim_poly_g trim_poly_x aligner
+export TMPDIR="$TEMP_DIR"
 
 find "$FASTQ_DIR" -name "*.fastq" -print0 | \
-    parallel -0 -j "$THREADS" \
+    parallel --no-notice -0 -j "$THREADS" \
         --tmpdir "$TEMP_DIR" \
         --compress \
         --will-cite \
@@ -105,9 +107,6 @@ elapsed_sec=$(( end_time - start_time ))
     "$trim_poly_g" \
     "$trim_poly_x" \
     "$elapsed_sec"
-
-# Remove temporary files
-rm -rf "$TEMP_DIR"
 
 echo "Pipeline sample complete." 
 
