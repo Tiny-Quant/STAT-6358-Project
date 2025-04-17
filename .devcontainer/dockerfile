@@ -14,6 +14,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
+        parallel \
         libxml2-dev libssl-dev libcurl4-openssl-dev \
         libhdf5-dev zlib1g-dev libgsl-dev \
         curl wget git vim bash gdebi-core \
@@ -34,7 +35,7 @@ RUN git config --global user.name "container" && \
 RUN mkdir -p $R_LIBS_USER
 COPY r-pkg-installer.r /tmp/r-pkg-installer.r
 RUN Rscript --vanilla /tmp/r-pkg-installer.r
-ENV PATH=/usr/bin:/usr/local/bin:$PATH 
+ENV PATH="/usr/local/bin:${PATH}" 
 
 # Install quarto. 
 RUN curl -LO https://quarto.org/download/latest/quarto-linux-amd64.deb
@@ -61,10 +62,11 @@ RUN conda env create -f /tmp/py_env.yml && \
     conda clean --all --yes && \ 
     conda init bash && \
     echo "source /opt/miniconda/etc/profile.d/conda.sh" > /etc/profile.d/conda_env.sh && \
-    echo "conda activate stat6358" >> /etc/profile.d/conda_env.sh
+    echo "conda activate stat6358" >> /etc/profile.d/conda_env.sh && \
+    echo "conda activate stat6358" >> ~/.bashrc
 ENV PATH=/opt/miniconda/envs/stat6358/bin:$PATH
 
-# Set environment variables for locale
+# Set environment variables for locale.
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
