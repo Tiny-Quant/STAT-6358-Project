@@ -4,19 +4,22 @@ FROM bioconductor/bioconductor_docker:devel
 # Set working directory name. 
 WORKDIR /repo
 
+# Set up locales & non-interactive apt
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    R_LIBS_USER=/opt/R/library
+
 # Install linux tools. 
-ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-    build-essential git bash curl wget vim gdebi-core \
-    r-base-dev libssl-dev libxml2-dev libcurl4-openssl-dev \
-    parallel \
-    bzip2 ca-certificates unzip locales && \ 
-    locale-gen en_US.UTF-8 && \
-    update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \ 
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* 
+        build-essential \
+        libxml2-dev libssl-dev libcurl4-openssl-dev \
+        libhdf5-dev zlib1g-dev libgsl-dev \
+        curl wget git vim bash gdebi-core \
+        bzip2 ca-certificates unzip locales && \
+    locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Oh My Bash.
 RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" && \
@@ -27,30 +30,11 @@ RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/
 RUN git config --global user.name "container" && \
     git config --global user.email "container@docker.com"
 
-# Install miniconda. 
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
-    bash /tmp/miniconda.sh -b -p /opt/miniconda && \
-    rm /tmp/miniconda.sh
-ENV PATH=/opt/miniconda/bin:$PATH
-RUN pip install --upgrade pip
-RUN conda clean --all --yes && \
-    conda init bash
-RUN conda update libstdcxx-ng -c conda-forge
-RUN conda install -c conda-forge radian
-
-# Create conda environment for bioconda packages. 
-COPY py_env.yml /tmp/py_env.yml
-RUN conda env create -f /tmp/py_env.yml && \
-    conda clean --all --yes && \ 
-    conda init bash && \
-    echo "source /opt/miniconda/etc/profile.d/conda.sh" > /etc/profile.d/conda_env.sh && \
-    echo "conda activate stat6358" >> /etc/profile.d/conda_env.sh
-ENV PATH=/opt/miniconda/envs/stat6358/bin:$PATH
-
 # Install R packages
-ENV PATH=/usr/local/bin:$PATH
-COPY r-pkg-installer.r /tmp/r-pkg-install.r
-RUN Rscript /tmp/r-pkg-install.r 
+RUN mkdir -p $R_LIBS_USER
+COPY r-pkg-installer.r /tmp/r-pkg-installer.r
+RUN Rscript --vanilla /tmp/r-pkg-installer.r
+ENV PATH=/usr/bin:/usr/local/bin:$PATH 
 
 # Install quarto. 
 RUN curl -LO https://quarto.org/download/latest/quarto-linux-amd64.deb
@@ -63,6 +47,22 @@ RUN wget --output-document sratoolkit.tar.gz https://ftp-trace.ncbi.nlm.nih.gov/
     mkdir -p /opt/sra-tools && \ 
     mv sratoolkit.* /opt/sra-tools
 ENV PATH=/opt/sra-tools/sratoolkit.3.2.1-ubuntu64/bin:$PATH
+
+# Install miniconda. 
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
+    bash /tmp/miniconda.sh -b -p /opt/miniconda && \
+    rm /tmp/miniconda.sh
+ENV PATH=/opt/miniconda/bin:$PATH
+RUN pip install --upgrade pip
+
+# Create conda environment for bioconda packages. 
+COPY py_env.yml /tmp/py_env.yml
+RUN conda env create -f /tmp/py_env.yml && \
+    conda clean --all --yes && \ 
+    conda init bash && \
+    echo "source /opt/miniconda/etc/profile.d/conda.sh" > /etc/profile.d/conda_env.sh && \
+    echo "conda activate stat6358" >> /etc/profile.d/conda_env.sh
+ENV PATH=/opt/miniconda/envs/stat6358/bin:$PATH
 
 # Set environment variables for locale
 ENV LANG=en_US.UTF-8

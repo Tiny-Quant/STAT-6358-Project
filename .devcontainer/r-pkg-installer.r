@@ -1,18 +1,36 @@
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
 if (!require("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
 
-BiocManager::install(version = "3.21")
-BiocManager::install("GEOquery")
-BiocManager::install("affy")
-BiocManager::install("limma")
-BiocManager::install("hgu133plus2.db")
-BiocManager::install("tximport")
-BiocManager::install("edgeR")
-BiocManager::install("rhdf5")
-BiocManager::install("ALDEx2")
+BiocManager::install(
+    version = "devel",
+    ask     = FALSE,
+    update  = FALSE
+)
 
-install.packages("tidyverse")
-install.packages("tidymodels")
-install.packages("kableExtra")
-install.packages("languageserver")
+install.packages(
+    c(
+        "tidyverse",
+        "tidymodels",
+        "kableExtra",
+        "languageserver"
+    ),
+    dependencies = TRUE
+)
+
+BiocManager::install(
+    c(
+        "GEOquery",
+        "affy",
+        "limma",
+        "hgu133plus2.db",
+        "tximport",
+        "edgeR",
+        "rhdf5",
+        "ALDEx2"
+    ),
+    ask = FALSE,
+    update = FALSE
+)
