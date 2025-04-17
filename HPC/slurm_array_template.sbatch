@@ -2,14 +2,14 @@
 
 #SBATCH -A mmcgee_stat6358_1252_001_0001
 #SBATCH --job-name=sample_run_scratch
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=8
 #SBATCH --mem=64GB
 #SBATCH -t 0-2:0:0
 #SBATCH -o job_%A_%a.out          # %A = array job ID, %a = array task ID
 #SBATCH -e job_%A_%a.err
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=ataychameekiatchai@smu.edu
-#SBATCH --array=0-9%2
+#SBATCH --array=0-24%5
 
 echo "Running task ID: $SLURM_ARRAY_TASK_ID"
 
