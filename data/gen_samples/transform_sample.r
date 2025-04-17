@@ -95,6 +95,7 @@ start_time <- proc.time()[3]
 args <- commandArgs(trailingOnly = TRUE)
 
 sample_dir   <- args[1]
+print(sample_dir)
 aligner       <- args[2]
 min_phred     <- args[3]
 min_length    <- args[4]
@@ -112,6 +113,7 @@ sample_dirs <- list.dirs(sample_dir, recursive = FALSE, full.name = TRUE)
 if (aligner == "salmon") {
    files <- file.path(sample_dirs, "quant.sf") 
    names(files) <- basename(sample_dirs)
+   print(files)
    txi <- tximport(files, type = "salmon", tx2gene = tx2gene, 
                    ignoreTxVersion = TRUE, ignoreAfterBar = TRUE)
 
@@ -122,6 +124,7 @@ if (aligner == "salmon") {
 } else if(aligner == "kallisto") {
     files <- file.path(sample_dirs, "abundance.h5")
     names(files) <- basename(sample_dirs)
+    print(files)
     txi <- tximport(files, type = "kallisto", tx2gene = tx2gene, 
                     ignoreTxVersion = TRUE, ignoreAfterBar = TRUE)
 

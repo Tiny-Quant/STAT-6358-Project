@@ -38,7 +38,7 @@ module load devcontainer
 singularity exec \
   --bind /users/ataychameekiatchai/STAT-6358-Project \
   --pwd /users/ataychameekiatchai/STAT-6358-Project/data \
-  /users/ataychameekiatchai/STAT-6358-Project/.devcontainer/devcontainer_latest_amd64_2025_04_15_13_24_10.sif \
+  /users/ataychameekiatchai/STAT-6358-Project/.devcontainer/devcontainer_latest_amd64_2025_04_16_19_27_33.sif \
   bash pull_SRA_and_fastq.sh
 pwd
 
