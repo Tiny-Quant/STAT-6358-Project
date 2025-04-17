@@ -20,9 +20,8 @@ RUN apt-get update && \
 
 # Install Oh My Bash.
 RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" && \
-    # Set the theme and configuration (optional customization)
-    sed -i 's/OSH_THEME="font"/OSH_THEME="powerline-multiline"/g' ~/.bashrc && \ 
-    echo 'alias ll="ls -lah"' >> ~/.bashrc
+    echo 'OSH_THEME="powerline-multiline"' > ~/.oh-my-bash/custom/osh-theme.sh && \
+    echo 'alias ll="ls -lah"' >> ~/.oh-my-bash/custom/aliases.sh
 
 # Set Git user configuration.
 RUN git config --global user.name "container" && \
@@ -43,8 +42,9 @@ RUN conda install -c conda-forge radian
 COPY py_env.yml /tmp/py_env.yml
 RUN conda env create -f /tmp/py_env.yml && \
     conda clean --all --yes && \ 
-    conda init bash && \ 
-    echo "conda activate stat6358" >> ~/.bashrc
+    conda init bash && \
+    echo "source /opt/miniconda/etc/profile.d/conda.sh" > /etc/profile.d/conda_env.sh && \
+    echo "conda activate stat6358" >> /etc/profile.d/conda_env.sh
 ENV PATH=/opt/miniconda/envs/stat6358/bin:$PATH
 
 # Install R packages
@@ -61,8 +61,8 @@ RUN quarto install tinytex
 RUN wget --output-document sratoolkit.tar.gz https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz && \
     tar -vxzf sratoolkit.tar.gz && \
     mkdir -p /opt/sra-tools && \ 
-    mv sratoolkit.* /opt/sra-tools && \ 
-    echo 'export PATH=/opt/sra-tools/sratoolkit.3.2.1-ubuntu64/bin:$PATH' >> ~/.bashrc
+    mv sratoolkit.* /opt/sra-tools
+ENV PATH=/opt/sra-tools/sratoolkit.3.2.1-ubuntu64/bin:$PATH
 
 # Set environment variables for locale
 ENV LANG=en_US.UTF-8
