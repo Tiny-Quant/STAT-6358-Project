@@ -1,0 +1,47 @@
+WARNING: While bind mounting '/work:/work': destination is already in the mount point list
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+       Rsubread 2.20.0
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                                                                            ||
+||                           SRR31476643_Q22_L35_G1_X0_J19023445_2.bam        ||
+||                                                                            ||
+||              Paired-end : no                                               ||
+||        Count read pairs : no                                               ||
+||              Annotation : Homo_sapiens.GRCh38.110.gtf (GTF)                ||
+||      Dir for temp files : .                                                ||
+||                 Threads : 1                                                ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : counted                                          ||
+|| Multi-overlapping reads : counted                                          ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file Homo_sapiens.GRCh38.110.gtf ...                       ||
+||    Features : 1649677                                                      ||
+||    Meta-features : 62754                                                   ||
+||    Chromosomes/contigs : 47                                                ||
+||                                                                            ||
+|| Process BAM file SRR31476643_Q22_L35_G1_X0_J19023445_2.bam...              ||
+||    Single-end reads are included.                                          ||
+||    Total alignments : 27984651                                             ||
+||    Successfully assigned alignments : 24053013 (86.0%)                     ||
+||    Running time : 0.40 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+\\============================================================================//
+
+✅ HISAT2 gene count matrix saved to: hisat2_count_matrices/SRR31476643_Q22_L35_G1_X0_J19023445_2_count_matrix.csv 

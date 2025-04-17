@@ -1,0 +1,307 @@
+Running STAR pipeline with: Q21_L31_G1_X0_J19023435_2
+Processing SRR31476642
+Detecting adapter sequence for read1...
+>Nextera_LMP_Read1_External_Adapter | >Illumina Multiplexing Index Sequencing Primer
+GATCGGAAGAGCACACGTCTGAACTCCAGTCAC
+
+Read1 before filtering:
+total reads: 23072356
+total bases: 1153617800
+Q20 bases: 1148431484(99.5504%)
+Q30 bases: 1136859759(98.5473%)
+
+Read1 after filtering:
+total reads: 23009664
+total bases: 1150112417
+Q20 bases: 1144988954(99.5545%)
+Q30 bases: 1133483868(98.5542%)
+
+Filtering result:
+reads passed filter: 23009664
+reads failed due to low quality: 1552
+reads failed due to too many N: 835
+reads failed due to too short: 60305
+reads with adapter trimmed: 96543
+bases trimmed due to adapters: 3215987
+
+Duplication rate (may be overestimated since this is SE data): 62.7259%
+
+JSON report: /tmp/tmp.iqTERgymxG/SRR31476642_Q21_L31_G1_X0_J19023435_2_fastp.json
+HTML report: /tmp/tmp.iqTERgymxG/SRR31476642_Q21_L31_G1_X0_J19023435_2_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476642.fastq --qualified_quality_phred 21 --length_required 31 --trim_poly_g --out1 /tmp/tmp.iqTERgymxG/SRR31476642_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --json /tmp/tmp.iqTERgymxG/SRR31476642_Q21_L31_G1_X0_J19023435_2_fastp.json --html /tmp/tmp.iqTERgymxG/SRR31476642_Q21_L31_G1_X0_J19023435_2_fastp.html 
+fastp v0.24.0, time used: 21 seconds
+	/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR-avx2 --runThreadN 8 --genomeDir ./indices/STAR --readFilesIn /tmp/tmp.iqTERgymxG/SRR31476642_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --outFileNamePrefix /tmp/tmp.iqTERgymxG/SRR31476642_Q21_L31_G1_X0_J19023435_2_ --outSAMtype BAM Unsorted
+	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+Apr 16 12:43:16 ..... started STAR run
+Apr 16 12:43:16 ..... loading genome
+Apr 16 12:43:47 ..... started mapping
+Apr 16 12:44:45 ..... finished mapping
+Apr 16 12:44:46 ..... finished successfully
+Processing SRR31476643
+Detecting adapter sequence for read1...
+GCTACCTTTGCACGGTTAGGGTACCGCGGCCGTTAAACATGTGTCACTGGGCAGGCGGT
+
+Read1 before filtering:
+total reads: 21975689
+total bases: 1098784450
+Q20 bases: 1093492101(99.5183%)
+Q30 bases: 1081837660(98.4577%)
+
+Read1 after filtering:
+total reads: 21957005
+total bases: 1097597110
+Q20 bases: 1092352380(99.5222%)
+Q30 bases: 1080727621(98.4631%)
+
+Filtering result:
+reads passed filter: 21957005
+reads failed due to low quality: 1580
+reads failed due to too many N: 762
+reads failed due to too short: 16342
+reads with adapter trimmed: 44641
+bases trimmed due to adapters: 954341
+
+Duplication rate (may be overestimated since this is SE data): 63.4452%
+
+JSON report: /tmp/tmp.iqTERgymxG/SRR31476643_Q21_L31_G1_X0_J19023435_2_fastp.json
+HTML report: /tmp/tmp.iqTERgymxG/SRR31476643_Q21_L31_G1_X0_J19023435_2_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476643.fastq --qualified_quality_phred 21 --length_required 31 --trim_poly_g --out1 /tmp/tmp.iqTERgymxG/SRR31476643_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --json /tmp/tmp.iqTERgymxG/SRR31476643_Q21_L31_G1_X0_J19023435_2_fastp.json --html /tmp/tmp.iqTERgymxG/SRR31476643_Q21_L31_G1_X0_J19023435_2_fastp.html 
+fastp v0.24.0, time used: 20 seconds
+	/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR-avx2 --runThreadN 8 --genomeDir ./indices/STAR --readFilesIn /tmp/tmp.iqTERgymxG/SRR31476643_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --outFileNamePrefix /tmp/tmp.iqTERgymxG/SRR31476643_Q21_L31_G1_X0_J19023435_2_ --outSAMtype BAM Unsorted
+	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+Apr 16 12:45:08 ..... started STAR run
+Apr 16 12:45:08 ..... loading genome
+Apr 16 12:45:24 ..... started mapping
+Apr 16 12:46:20 ..... finished mapping
+Apr 16 12:46:21 ..... finished successfully
+Processing SRR31476644
+Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Read1 before filtering:
+total reads: 20332624
+total bases: 1016631200
+Q20 bases: 1011795913(99.5244%)
+Q30 bases: 1001075820(98.4699%)
+
+Read1 after filtering:
+total reads: 20330345
+total bases: 1016483713
+Q20 bases: 1011691003(99.5285%)
+Q30 bases: 1000991048(98.4759%)
+
+Filtering result:
+reads passed filter: 20330345
+reads failed due to low quality: 1478
+reads failed due to too many N: 767
+reads failed due to too short: 34
+reads with adapter trimmed: 0
+bases trimmed due to adapters: 0
+
+Duplication rate (may be overestimated since this is SE data): 62.7177%
+
+JSON report: /tmp/tmp.iqTERgymxG/SRR31476644_Q21_L31_G1_X0_J19023435_2_fastp.json
+HTML report: /tmp/tmp.iqTERgymxG/SRR31476644_Q21_L31_G1_X0_J19023435_2_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476644.fastq --qualified_quality_phred 21 --length_required 31 --trim_poly_g --out1 /tmp/tmp.iqTERgymxG/SRR31476644_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --json /tmp/tmp.iqTERgymxG/SRR31476644_Q21_L31_G1_X0_J19023435_2_fastp.json --html /tmp/tmp.iqTERgymxG/SRR31476644_Q21_L31_G1_X0_J19023435_2_fastp.html 
+fastp v0.24.0, time used: 19 seconds
+	/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR-avx2 --runThreadN 8 --genomeDir ./indices/STAR --readFilesIn /tmp/tmp.iqTERgymxG/SRR31476644_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --outFileNamePrefix /tmp/tmp.iqTERgymxG/SRR31476644_Q21_L31_G1_X0_J19023435_2_ --outSAMtype BAM Unsorted
+	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+Apr 16 12:46:41 ..... started STAR run
+Apr 16 12:46:41 ..... loading genome
+Apr 16 12:46:59 ..... started mapping
+Apr 16 12:47:55 ..... finished mapping
+Apr 16 12:47:56 ..... finished successfully
+Processing SRR31476645
+Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Read1 before filtering:
+total reads: 23947987
+total bases: 1197399350
+Q20 bases: 1191793112(99.5318%)
+Q30 bases: 1179362266(98.4936%)
+
+Read1 after filtering:
+total reads: 23945410
+total bases: 1197229018
+Q20 bases: 1191672420(99.5359%)
+Q30 bases: 1179265150(98.4995%)
+
+Filtering result:
+reads passed filter: 23945410
+reads failed due to low quality: 1771
+reads failed due to too many N: 771
+reads failed due to too short: 35
+reads with adapter trimmed: 0
+bases trimmed due to adapters: 0
+
+Duplication rate (may be overestimated since this is SE data): 63.6719%
+
+JSON report: /tmp/tmp.iqTERgymxG/SRR31476645_Q21_L31_G1_X0_J19023435_2_fastp.json
+HTML report: /tmp/tmp.iqTERgymxG/SRR31476645_Q21_L31_G1_X0_J19023435_2_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476645.fastq --qualified_quality_phred 21 --length_required 31 --trim_poly_g --out1 /tmp/tmp.iqTERgymxG/SRR31476645_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --json /tmp/tmp.iqTERgymxG/SRR31476645_Q21_L31_G1_X0_J19023435_2_fastp.json --html /tmp/tmp.iqTERgymxG/SRR31476645_Q21_L31_G1_X0_J19023435_2_fastp.html 
+fastp v0.24.0, time used: 22 seconds
+	/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR-avx2 --runThreadN 8 --genomeDir ./indices/STAR --readFilesIn /tmp/tmp.iqTERgymxG/SRR31476645_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --outFileNamePrefix /tmp/tmp.iqTERgymxG/SRR31476645_Q21_L31_G1_X0_J19023435_2_ --outSAMtype BAM Unsorted
+	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+Apr 16 12:48:18 ..... started STAR run
+Apr 16 12:48:18 ..... loading genome
+Apr 16 12:48:35 ..... started mapping
+Apr 16 12:49:41 ..... finished mapping
+Apr 16 12:49:41 ..... finished successfully
+Processing SRR31476646
+Detecting adapter sequence for read1...
+No adapter detected for read1
+
+Read1 before filtering:
+total reads: 24369744
+total bases: 1218487200
+Q20 bases: 1212588310(99.5159%)
+Q30 bases: 1199663786(98.4552%)
+
+Read1 after filtering:
+total reads: 24366887
+total bases: 1218303882
+Q20 bases: 1212459507(99.5203%)
+Q30 bases: 1199560591(98.4615%)
+
+Filtering result:
+reads passed filter: 24366887
+reads failed due to low quality: 1933
+reads failed due to too many N: 898
+reads failed due to too short: 26
+reads with adapter trimmed: 0
+bases trimmed due to adapters: 0
+
+Duplication rate (may be overestimated since this is SE data): 63.5263%
+
+JSON report: /tmp/tmp.iqTERgymxG/SRR31476646_Q21_L31_G1_X0_J19023435_2_fastp.json
+HTML report: /tmp/tmp.iqTERgymxG/SRR31476646_Q21_L31_G1_X0_J19023435_2_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476646.fastq --qualified_quality_phred 21 --length_required 31 --trim_poly_g --out1 /tmp/tmp.iqTERgymxG/SRR31476646_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --json /tmp/tmp.iqTERgymxG/SRR31476646_Q21_L31_G1_X0_J19023435_2_fastp.json --html /tmp/tmp.iqTERgymxG/SRR31476646_Q21_L31_G1_X0_J19023435_2_fastp.html 
+fastp v0.24.0, time used: 23 seconds
+	/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR-avx2 --runThreadN 8 --genomeDir ./indices/STAR --readFilesIn /tmp/tmp.iqTERgymxG/SRR31476646_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --outFileNamePrefix /tmp/tmp.iqTERgymxG/SRR31476646_Q21_L31_G1_X0_J19023435_2_ --outSAMtype BAM Unsorted
+	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+Apr 16 12:50:06 ..... started STAR run
+Apr 16 12:50:06 ..... loading genome
+Apr 16 12:50:22 ..... started mapping
+Apr 16 12:51:31 ..... finished mapping
+Apr 16 12:51:32 ..... finished successfully
+Processing SRR31476647
+Detecting adapter sequence for read1...
+AGGGTTCTGTGGGCAAATTTAAAGTTGAACTAAGATTCTATCTTGGACAACCAGCTATCA
+
+Read1 before filtering:
+total reads: 21128593
+total bases: 1056429650
+Q20 bases: 1051345318(99.5187%)
+Q30 bases: 1040098453(98.4541%)
+
+Read1 after filtering:
+total reads: 21105610
+total bases: 1054876399
+Q20 bases: 1049837958(99.5224%)
+Q30 bases: 1038624150(98.4593%)
+
+Filtering result:
+reads passed filter: 21105610
+reads failed due to low quality: 1445
+reads failed due to too many N: 744
+reads failed due to too short: 20794
+reads with adapter trimmed: 73722
+bases trimmed due to adapters: 1222169
+
+Duplication rate (may be overestimated since this is SE data): 62.8678%
+
+JSON report: /tmp/tmp.iqTERgymxG/SRR31476647_Q21_L31_G1_X0_J19023435_2_fastp.json
+HTML report: /tmp/tmp.iqTERgymxG/SRR31476647_Q21_L31_G1_X0_J19023435_2_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476647.fastq --qualified_quality_phred 21 --length_required 31 --trim_poly_g --out1 /tmp/tmp.iqTERgymxG/SRR31476647_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --json /tmp/tmp.iqTERgymxG/SRR31476647_Q21_L31_G1_X0_J19023435_2_fastp.json --html /tmp/tmp.iqTERgymxG/SRR31476647_Q21_L31_G1_X0_J19023435_2_fastp.html 
+fastp v0.24.0, time used: 19 seconds
+	/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR-avx2 --runThreadN 8 --genomeDir ./indices/STAR --readFilesIn /tmp/tmp.iqTERgymxG/SRR31476647_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --outFileNamePrefix /tmp/tmp.iqTERgymxG/SRR31476647_Q21_L31_G1_X0_J19023435_2_ --outSAMtype BAM Unsorted
+	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+Apr 16 12:51:52 ..... started STAR run
+Apr 16 12:51:52 ..... loading genome
+Apr 16 12:52:09 ..... started mapping
+Apr 16 12:53:03 ..... finished mapping
+Apr 16 12:53:04 ..... finished successfully
+Processing SRR31476648
+Detecting adapter sequence for read1...
+GCTACCTTTGCACGGTTAGGGTACCGCGGCCGTTAAACATGTGTCACTGGGCAGGCGGT
+
+Read1 before filtering:
+total reads: 24051034
+total bases: 1202551700
+Q20 bases: 1196586391(99.5039%)
+Q30 bases: 1183492353(98.4151%)
+
+Read1 after filtering:
+total reads: 24029655
+total bases: 1201173986
+Q20 bases: 1195260498(99.5077%)
+Q30 bases: 1182200360(98.4204%)
+
+Filtering result:
+reads passed filter: 24029655
+reads failed due to low quality: 1716
+reads failed due to too many N: 818
+reads failed due to too short: 18845
+reads with adapter trimmed: 53045
+bases trimmed due to adapters: 1104251
+
+Duplication rate (may be overestimated since this is SE data): 64.132%
+
+JSON report: /tmp/tmp.iqTERgymxG/SRR31476648_Q21_L31_G1_X0_J19023435_2_fastp.json
+HTML report: /tmp/tmp.iqTERgymxG/SRR31476648_Q21_L31_G1_X0_J19023435_2_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476648.fastq --qualified_quality_phred 21 --length_required 31 --trim_poly_g --out1 /tmp/tmp.iqTERgymxG/SRR31476648_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --json /tmp/tmp.iqTERgymxG/SRR31476648_Q21_L31_G1_X0_J19023435_2_fastp.json --html /tmp/tmp.iqTERgymxG/SRR31476648_Q21_L31_G1_X0_J19023435_2_fastp.html 
+fastp v0.24.0, time used: 23 seconds
+	/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR-avx2 --runThreadN 8 --genomeDir ./indices/STAR --readFilesIn /tmp/tmp.iqTERgymxG/SRR31476648_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --outFileNamePrefix /tmp/tmp.iqTERgymxG/SRR31476648_Q21_L31_G1_X0_J19023435_2_ --outSAMtype BAM Unsorted
+	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+Apr 16 12:53:28 ..... started STAR run
+Apr 16 12:53:28 ..... loading genome
+Apr 16 12:53:45 ..... started mapping
+Apr 16 12:54:49 ..... finished mapping
+Apr 16 12:54:50 ..... finished successfully
+Processing SRR31476650
+Detecting adapter sequence for read1...
+GCTACCTTTGCACGGTTAGGGTACCGCGGCCGTTAAACATGTGTCACTGGGCAGGCGGTG
+
+Read1 before filtering:
+total reads: 26621475
+total bases: 1331073750
+Q20 bases: 1325207346(99.5593%)
+Q30 bases: 1312085210(98.5734%)
+
+Read1 after filtering:
+total reads: 26594888
+total bases: 1329409295
+Q20 bases: 1323594546(99.5626%)
+Q30 bases: 1310507752(98.5782%)
+
+Filtering result:
+reads passed filter: 26594888
+reads failed due to low quality: 1636
+reads failed due to too many N: 975
+reads failed due to too short: 23976
+reads with adapter trimmed: 61213
+bases trimmed due to adapters: 1383321
+
+Duplication rate (may be overestimated since this is SE data): 65.4781%
+
+JSON report: /tmp/tmp.iqTERgymxG/SRR31476650_Q21_L31_G1_X0_J19023435_2_fastp.json
+HTML report: /tmp/tmp.iqTERgymxG/SRR31476650_Q21_L31_G1_X0_J19023435_2_fastp.html
+
+fastp --in1 ./fastq_data/SRR31476650.fastq --qualified_quality_phred 21 --length_required 31 --trim_poly_g --out1 /tmp/tmp.iqTERgymxG/SRR31476650_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --json /tmp/tmp.iqTERgymxG/SRR31476650_Q21_L31_G1_X0_J19023435_2_fastp.json --html /tmp/tmp.iqTERgymxG/SRR31476650_Q21_L31_G1_X0_J19023435_2_fastp.html 
+fastp v0.24.0, time used: 26 seconds
+	/projects/dheitjan/hschuler_dissertatio/main_storage/.conda/envs/rna_seq_env/bin/STAR-avx2 --runThreadN 8 --genomeDir ./indices/STAR --readFilesIn /tmp/tmp.iqTERgymxG/SRR31476650_Q21_L31_G1_X0_J19023435_2_trimmed.fastq --outFileNamePrefix /tmp/tmp.iqTERgymxG/SRR31476650_Q21_L31_G1_X0_J19023435_2_ --outSAMtype BAM Unsorted
+	STAR version: 2.7.11b   compiled: 2025-01-09T12:32:06+0000 :/opt/conda/conda-bld/star_1736425784849/work/source
+Apr 16 12:55:17 ..... started STAR run
+Apr 16 12:55:17 ..... loading genome
+Apr 16 12:55:33 ..... started mapping
+Apr 16 12:56:42 ..... finished mapping
+Apr 16 12:56:43 ..... finished successfully
+STAR pipeline complete with config: Q21_L31_G1_X0_J19023435_2
