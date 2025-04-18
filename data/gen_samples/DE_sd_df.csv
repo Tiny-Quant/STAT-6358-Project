@@ -1,0 +1,4 @@
+"p_value_sd","effect_size_sd","aligner","min_phred","min_length","trim_poly_g","trim_poly_x","runtime_sec","norm_method","gene_overlap_percent"
+0.554041325037689,0.989927132345405,"salmon",0,1,"2","3",7.482,"default",84.4250278543365
+0.552894298849418,0.975105649596656,"kallisto",20,36,"0","0",419.973,"default",83.4735857877513
+0.553870325122899,0.990645803294122,"salmon",30,36,"0","0",617.821,"default",84.3262577694383
