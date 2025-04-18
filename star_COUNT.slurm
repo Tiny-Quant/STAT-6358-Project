@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=STAR_count
-#SBATCH --output=logs/star_count_%A_%a.out
-#SBATCH --array=1-90
+#SBATCH --output=star_count_logs/star_count_%A_%a.out
+#SBATCH --array=1-900
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --time=1:00:00
-#SBATCH --partition=htc
+#SBATCH --partition=standard-s
 #SBATCH --account=mmcgee_stat6358_1252_001_0001
 
 module load conda
