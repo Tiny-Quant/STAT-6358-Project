@@ -3,7 +3,7 @@
 #############
 library(tidyverse)
 
-setwd("/repo/data/gen_samples")
+setwd("./data/gen_samples")
 
 factors <- c("aligner", "trim_poly_g", "trim_poly_x", "norm_method")
 
