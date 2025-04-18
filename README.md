@@ -75,7 +75,7 @@ bash create align_indices.sh
 3. Run the sampling script. 
 ```bash
 cd HPC/
-sbatch template.sbatch
+sbatch slurm_array_template.sbatch
 ```
 
 3a. If you are not using an HPC, then you can run the script directly. 
@@ -87,7 +87,7 @@ Note that each run produces one sample or one line of data, so loop or run the s
 
 4. Run the R script to combine the samples into dataframes and write them to `.csv` files.   
 ```bash
-R something.r 
+Rscript data/gen_samples/combine_samples.r
 ```
 
-Now `count_sd_df.csv` and `p_value_sd_df.csv` should appear in the `data/` directory. 
+Now `count_sd_df.csv` and `DE_sd_df.csv` should appear in the `data/gen_samples/` directory. 
