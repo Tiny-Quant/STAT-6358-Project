@@ -38,4 +38,10 @@ DE_sd_samples/
 hisat2_results/
 star_results/
 
-
+hisat2_combined_counts/
+star_combined_counts/
+hisat2_count_matrices/
+sam_to_bam_logs/
+star_count_logs/
+star_counts/
+logs/

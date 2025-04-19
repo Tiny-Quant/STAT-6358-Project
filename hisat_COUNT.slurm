@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=HISAT2_count
-#SBATCH --output=logs/hisat2_count_%A_%a.out
-#SBATCH --array=1-90
+#SBATCH --output=sam_to_bam_logs/hisat2_count_%A_%a.out
+#SBATCH --array=1-900
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=128G
 #SBATCH --time=1:00:00
-#SBATCH --partition=htc
+#SBATCH --partition=standard-s
 #SBATCH --account=mmcgee_stat6358_1252_001_0001
 
 module load conda
