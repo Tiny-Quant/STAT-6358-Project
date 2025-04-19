@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail # Exit on any fail. 
 
+# Addresses tty warning messages. 
+export DEBIAN_FRONTEND=noninteractive
+export TERM=dumb 
+
 # Configuration
 THREADS=9
 PHRED_MIN=20
@@ -28,8 +32,8 @@ min_phred=$(( RANDOM % (PHRED_MAX - PHRED_MIN + 1) + PHRED_MIN ))
 min_length=$(( RANDOM % (LENGTH_MAX - LENGTH_MIN + 1) + LENGTH_MIN ))
 trim_poly_g=$(( RANDOM % 2 ))
 trim_poly_x=$(( RANDOM % 2 ))
-#aligner=${ALIGNERS[$(( RANDOM % ${#ALIGNERS[@]} ))]}
-aligner="salmon"
+aligner=${ALIGNERS[$(( RANDOM % ${#ALIGNERS[@]} ))]}
+#aligner="salmon"
 
 # Track start time
 start_time=$(date +%s)
