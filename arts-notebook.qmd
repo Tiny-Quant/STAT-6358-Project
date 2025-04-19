@@ -26,6 +26,28 @@ tidymodels_prefer()
 
 # Analysis
 
+Assume there are $n$ samples of $G$ gene counts. Let $B_{gi}$ denote the count for gene $g$ in sample $i$ reported to the NIH database, and let $C_{giX}$ denote the count obtained from pipeline with choices $X$. Similar let $D_g$ and $E_{gX}$ denote the p-values obtained from `edgeR`. Now,    
+\begin{equation}
+    Y_{1X}^2 = \frac{1}{nG} \sum_{i=1}^n \sum_{g=1}^G (C_{giX} - B_{gi})^2  
+\end{equation}
+and 
+\begin{equation} 
+    Y_{2X}^2 = \frac 1 G \sum_{g=1}^G (E_{gX} - D_g)^2  
+\end{equation}
+Our primary analysis will focus on the two following regression models: 
+\begin{equation}
+    Y_{1X} = \beta_0 + \sum_{i=1}^p \beta_i X_i + 
+        \sum_{1\leq i < j \leq p} \beta_{ij}(X_i \times X_j) + \epsilon
+\end{equation}
+and 
+\begin{equation}
+    Y_{2X} = \beta_0 + \sum_{i=1}^p \beta_i X_i + 
+        \sum_{1\leq i < j \leq p} \beta_{ij}(X_i \times X_j) + \epsilon
+\end{equation}
+where $p$ is the number of pipeline choices from tbl-1. The first model studies the effect of each pipeline choice, include all pairwise interactions, on the average square deviation from the official NIH count matrix. The second model does the same, but for the p-values from a differential expression analysis.  
+
+## Frequentist
+
 ```{r}
 # Meta Data
 sample_names <- c(
@@ -133,3 +155,46 @@ quasi_fit <- DE_sd_df |>
     (\(x) glm(effect_size_sd ~ (.)^2, family = quasi(), data = x))()
 summary(quasi_fit)
 ```
+
+## Bayesian 
+
+We know that  
+\begin{equation}
+    Y^2 \overset{d}{\to} \mathcal{N}(\mu, \sigma^2)
+\end{equation}
+by the central limit theorem since $Y^2$ is an average. This is not completely accurate because $Y^2 > 0$, but if $\mu >> 0$, then the truncation is inconsequential. Using the 1-1 transformation formula we can derive that the distribution of $Y$ must be:  
+\begin{equation}
+    f_Y(y) 
+        = 
+    \dfrac{1}{\sqrt{2\pi}\sigma} e^{\dfrac{-(y^2 - \mu)^2}{2\sigma^2}}
+    \cdot 2y
+\end{equation}
+Unfortunately this doesn't have a close form expectation, which makes it difficult to model $\mathbb{E} \ Y = X\beta$. Since a mean and variance function can be derived, it is possible to fit a model with something like general estimating equation, but there a two key problems. First, the mean function is an integral which most likely needs to be approximated. Second, the necessary link function results in a non-linear relationship between the $\hat \beta$s and $Y$ making interpretation difficult.  
+
+Instead, we will build from the fact that $Y \geq 0$. There are several common likelihoods that have support $[0, \infty)$ such as the log-normal, gamma, weibull, etc. Since we are looking to model $\mathbb{E} \ Y = X\beta$, the log-normal is the simplest choice since the default parameterization is a location-scale family.  
+
+Consider the following Bayesian Hierarchical Model: 
+\begin{equation}
+\begin{aligned}
+    Y_i &\sim \log-\mathcal{N}(\mu_i, \sigma_i^2) \\ 
+    \mu_i &= X_i \beta \\ 
+    \sigma_i &= a \cdot \mu_i^b \\
+    \beta &\sim \mathcal{N}(0, 100) \\
+    a &\sim \text{Gamma}(c, d) \\ 
+    b &\sim \mathcal{N}(0, 10)
+\end{aligned}
+\end{equation}
+This set up has a couple of key advantages. 
+
+1. The interpretation is still linear on the $Y$ scale since we are modeling
+$\mathbb{E} \ Y_i = \mu_i = X_i \beta$.
+
+2. Natural parameter shrinkage via the prior on $\beta$. Handles multicollinearity and high dimensionality of $X$. 
+
+3. Does not assume constant variance. Specifically, we are applying the variance-power law from the Tweedie family of distributions, which the log-Normal is a member. 
+\begin{equation}
+    \text{Var} \ Y \propto (\mathbb{E} \ Y)^p 
+\end{equation}
+$a > 0$ and represents a common variance scale ie if $b = 0$ we recover the classical log-Normal regression model. $b \in \mathbb{R}$ where $b > 0$ indicates over-dispersion and $b < 0$ indicates under-dispersion. 
+
+4. We can use the posterior predictive distribution to check whether the model is consistent with the fact that $Y^2 \sim \mathcal{N}$. 
