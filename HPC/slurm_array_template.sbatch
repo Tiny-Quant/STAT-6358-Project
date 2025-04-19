@@ -2,9 +2,10 @@
 
 #SBATCH -A mmcgee_stat6358_1252_001_0001
 #SBATCH --job-name=sample_run_scratch
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=64GB
-#SBATCH -t 0-2:0:0
+#SBATCH --partition=highmem
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=256GB
+#SBATCH -t 0-5:0:0
 #SBATCH -o job_%A_%a.out          # %A = array job ID, %a = array task ID
 #SBATCH -e job_%A_%a.err
 #SBATCH --mail-type=ALL
