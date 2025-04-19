@@ -70,8 +70,15 @@ if (file.exists("nih_DE.csv")) {
         genes = nih_count_matrix$gene,
         group = as.factor(treatments)
     )
-    nih_dgelist <- nih_dgelist[filterByExpr(nih_dgelist), , keep.lib.sizes = FALSE]
+
+    nih_dgelist <- nih_dgelist[
+        filterByExpr(nih_dgelist), ,
+        keep.lib.sizes = FALSE
+    ]
+
     nih_dgelist <- estimateDisp(nih_dgelist)
+
+    nih_dgelist <- calcNormFactors(nih_dgelist, method = "none")
 
     design <- model.matrix(~ as.factor(treatments))
     nih_fit <- glmFit(nih_dgelist, design)
@@ -208,7 +215,7 @@ sample_count_data <- c(
 nih_DE <- read.csv("./nih_DE.csv")
 
 # Random select a normalization method.
-norm_methods <- c("default", "TMM", "RLE", "upperquartile", "ALDEx2")
+norm_methods <- c("none", "TMM", "TMMwsp", "RLE", "upperquartile", "ALDEx2")
 method_choice <- sample(norm_methods, 1)
 
 if (method_choice == "ALDEx2") {
@@ -243,13 +250,10 @@ if (method_choice == "ALDEx2") {
         filterByExpr(sample_dgelist), ,
         keep.lib.sizes = FALSE
     ]
+
     sample_dgelist <- estimateDisp(sample_dgelist)
 
-    if (method_choice == "default") {
-        sample_dgelist <- calcNormFactors(sample_dgelist)
-    } else {
-        sample_dgelist <- calcNormFactors(sample_dgelist, method = method_choice)
-    }
+    sample_dgelist <- calcNormFactors(sample_dgelist, method = method_choice)
 
     design <- model.matrix(~ as.factor(treatments))
     sample_fit <- glmFit(sample_dgelist, design)
