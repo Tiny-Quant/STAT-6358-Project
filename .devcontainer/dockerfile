@@ -14,10 +14,10 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
         parallel \
-        libxml2-dev libssl-dev libcurl4-openssl-dev \
-        libhdf5-dev zlib1g-dev libgsl-dev \
         curl wget git vim bash gdebi-core \
-        bzip2 ca-certificates unzip locales && \
+        bzip2 ca-certificates unzip locales dos2unix \
+        libxml2-dev libssl-dev libcurl4-openssl-dev \
+        libhdf5-dev zlib1g-dev libgsl-dev fontconfig && \
     locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \
     rm -rf /var/lib/apt/lists/*
 
