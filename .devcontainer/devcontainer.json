@@ -24,8 +24,8 @@
                 "r.liveShare.defaults.shareWorkspace": false, // disabled for now 
                 "r.plot.useHttpgd": true, // for in editor plots
                 "r.rmarkdown.knit.openOutputFile": true, 
-                "r.rpath.linux": "/usr/local/bin/R",
-                "r.rterm.linux": "/opt/miniconda/bin/radian"
+                "r.rpath.linux": "/opt/micromamba/bin/R",
+                "r.rterm.linux": "/opt/micromamba/bin/radian"
             }
         }
     }

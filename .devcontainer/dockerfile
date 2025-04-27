@@ -1,5 +1,5 @@
 # Base Image.
-FROM bioconductor/bioconductor_docker:devel
+FROM ubuntu:22.04
 
 # Set working directory name. 
 WORKDIR /repo
@@ -7,8 +7,7 @@ WORKDIR /repo
 # Set up locales & non-interactive apt
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8 \
-    R_LIBS_USER=/opt/R/library
+    LC_ALL=en_US.UTF-8
 
 # Install linux tools. 
 RUN apt-get update && \
@@ -22,6 +21,11 @@ RUN apt-get update && \
     locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 && \
     rm -rf /var/lib/apt/lists/*
 
+# Set environment variables for locale.
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
 # Install Oh My Bash.
 RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" && \
     echo 'OSH_THEME="powerline-multiline"' > ~/.oh-my-bash/custom/osh-theme.sh && \
@@ -30,12 +34,6 @@ RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/
 # Set Git user configuration.
 RUN git config --global user.name "container" && \
     git config --global user.email "container@docker.com"
-
-# Install R packages
-RUN mkdir -p $R_LIBS_USER
-COPY r-pkg-installer.r /tmp/r-pkg-installer.r
-RUN Rscript --vanilla /tmp/r-pkg-installer.r
-ENV PATH="/usr/local/bin:${PATH}" 
 
 # Install quarto. 
 RUN curl -LO https://quarto.org/download/latest/quarto-linux-amd64.deb
@@ -49,27 +47,19 @@ RUN wget --output-document sratoolkit.tar.gz https://ftp-trace.ncbi.nlm.nih.gov/
     mv sratoolkit.* /opt/sra-tools
 ENV PATH=/opt/sra-tools/sratoolkit.3.2.1-ubuntu64/bin:$PATH
 
-# Install miniconda. 
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
-    bash /tmp/miniconda.sh -b -p /opt/miniconda && \
-    rm /tmp/miniconda.sh
-ENV PATH=/opt/miniconda/bin:$PATH
-RUN pip install --upgrade pip
+# Install micromamba. 
+# Install micromamba. 
+ENV MAMBA_ROOT_PREFIX=/opt/micromamba
+ENV PATH=$MAMBA_ROOT_PREFIX/bin:$PATH
+RUN curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest \
+  | tar -xvj -C /usr/local/bin --strip-components=1 bin/micromamba
 
-# Create conda environment for bioconda packages. 
-COPY py_env.yml /tmp/py_env.yml
-RUN conda env create -f /tmp/py_env.yml && \
-    conda clean --all --yes && \ 
-    conda init bash && \
-    echo "source /opt/miniconda/etc/profile.d/conda.sh" > /etc/profile.d/conda_env.sh && \
-    echo "conda activate stat6358" >> /etc/profile.d/conda_env.sh && \
-    echo "conda activate stat6358" >> ~/.bashrc
-ENV PATH=/opt/miniconda/envs/stat6358/bin:$PATH
-
-# Set environment variables for locale.
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
+# Build micromamba env from yaml. 
+COPY micromamba_env.txt /tmp/micromamba_env.txt
+RUN --mount=type=cache,target=${MAMBA_ROOT_PREFIX}/pkgs,sharing=locked,id=conda_cache \
+    micromamba install -n base -y -f /tmp/micromamba_env.txt && \
+    echo 'eval "$(micromamba shell hook --shell=bash)"' >> ~/.bashrc && \
+    echo 'micromamba activate base' >> ~/.bashrc
 
 # Copy current directory. 
 COPY . /repo/

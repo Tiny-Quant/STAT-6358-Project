@@ -4,7 +4,6 @@ services:
     build:
       context: .  
       dockerfile: dockerfile
-    image: devcontainer:latest
 
     volumes:
       # Mount one directory up to the container's repo folder.
