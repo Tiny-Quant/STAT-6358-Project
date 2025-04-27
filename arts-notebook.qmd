@@ -24,7 +24,7 @@ library(kableExtra)
 tidymodels_prefer()
 ```
 
-# Analysis
+# Methods
 
 Assume there are $n$ samples of $G$ gene counts. Let $B_{gi}$ denote the count for gene $g$ in sample $i$ reported to the NIH database, and let $C_{giX}$ denote the count obtained from pipeline with choices $X$. Similar let $D_g$ and $E_{gX}$ denote the p-values obtained from `edgeR`. Now,    
 \begin{equation}
@@ -46,10 +46,13 @@ and
 \end{equation}
 where $p$ is the number of pipeline choices from tbl-1. The first model studies the effect of each pipeline choice, include all pairwise interactions, on the average square deviation from the official NIH count matrix. The second model does the same, but for the p-values from a differential expression analysis.  
 
-## Frequentist
+# Code 
+
+## EDA
 
 ```{r}
-# Meta Data
+#| label: Meta Data 
+
 sample_names <- c(
     "gene",
     "SRR31476642",
@@ -78,13 +81,68 @@ treatments <- c(
 factors <- c("aligner", "trim_poly_g", "trim_poly_x", "norm_method")
 ```
 
-## Counts
 ```{r}
-# Read in data. 
-count_sd_df <- read.csv("./data/gen_samples/count_sd_df.csv")
+#| label: Load Data
+
+count_sd_df_salmon_kallisto <- read.csv("./data/gen_samples/count_sd_df.csv")
+count_sd_df_STAR_HISAT2 <- read.csv("./STAR_HISAT2_combined_results.csv") 
+
+count_sd_df <- rbind(count_sd_df_salmon_kallisto, count_sd_df_STAR_HISAT2) 
 count_sd_df <- count_sd_df |> 
     mutate(across(any_of(factors), ~ as.factor(.)))
 
+DE_sd_df_salmon_kallisto <- read.csv("./data/gen_samples/DE_sd_df.csv")
+DE_sd_df <- DE_sd_df_salmon_kallisto
+DE_sd_df <- DE_sd_df |> 
+    mutate(across(any_of(factors), ~ as.factor(.)))
+```
+
+```{r}
+#| label: Summary Statistics 
+
+count_sd_df |> 
+    group_by(aligner) |> 
+    summarize(mean_count_sd = mean(count_sd))
+
+count_sd_df |> 
+    group_by(trim_poly_g) |> 
+    summarize(mean_count_sd = mean(count_sd))
+
+count_sd_df |> 
+    group_by(trim_poly_x) |> 
+    summarize(mean_count_sd = mean(count_sd))
+
+count_sd_df |> 
+    group_by(aligner) |> 
+    summarize(mean_runtime = mean(runtime_sec))
+
+DE_sd_df |> 
+    group_by(aligner, norm_method, trim_poly_x) |> 
+    summarize(mean_p_value_sd = mean(p_value_sd))
+```
+
+```{r}
+#| label: EDA Plot 
+
+qqnorm(log(DE_sd_df$p_value_sd), main = "p-value SD Q-Q Plot")
+qqline(log(DE_sd_df$p_value_sd))
+
+qqnorm(DE_sd_df$effect_size_sd^2, main = "Effect Size SD Q-Q Plot")
+qqline(DE_sd_df$effect_size_sd^2)
+
+count_sd_df |> ggplot(
+    aes(x = count_sd)
+) + geom_histogram(binwidth = 250)
+
+DE_sd_df |> ggplot(
+    aes(x = p_value_sd)
+) + geom_histogram(binwidth = 0.01)
+```
+
+## Frequentist
+
+### Counts
+```{r Count GLMs}
 # Classic LM 
 lm_fit <- count_sd_df |> 
     select(-c(runtime_sec, gene_overlap_percent)) |> 
@@ -104,13 +162,8 @@ quasi_fit <- count_sd_df |>
 summary(quasi_fit)
 ```
 
-## P-Values
-```{r}
-# Read in data. 
-DE_sd_df <- read.csv("./data/gen_samples/DE_sd_df.csv")
-DE_sd_df <- DE_sd_df |> 
-    mutate(across(any_of(factors), ~ as.factor(.)))
-
+### P-Values
+```{r p-value GLMs}
 # Classic LM 
 lm_fit <- DE_sd_df |> 
     select(-c(runtime_sec, gene_overlap_percent, effect_size_sd)) |> 
@@ -130,13 +183,8 @@ quasi_fit <- DE_sd_df |>
 summary(quasi_fit)
 ```
 
-## Effect Size
-```{r}
-# Read in data. 
-DE_sd_df <- read.csv("./data/gen_samples/DE_sd_df.csv")
-DE_sd_df <- DE_sd_df |> 
-    mutate(across(any_of(factors), ~ as.factor(.)))
-
+### Effect Size
+```{r Effect Size GLMs}
 # Classic LM 
 lm_fit <- DE_sd_df |> 
     select(-c(runtime_sec, gene_overlap_percent, p_value_sd)) |> 
