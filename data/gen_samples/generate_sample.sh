@@ -104,7 +104,7 @@ end_time=$(date +%s)
 elapsed_sec=$(( end_time - start_time ))
 
 #export PATH="/usr/local/bin:$PATH"
-/usr/local/bin/Rscript "./transform_sample.r" \
+/opt/micromamba/bin/Rscript "./transform_sample.r" \
     "$TEMP_DIR" \
     "$aligner" \
     "$min_phred" \
