@@ -233,18 +233,73 @@ $a > 0$ and represents a common variance scale ie if $b = 0$ we recover the clas
 
 1. Clear model diagnostic checks. 
 
-Pre-specified Model Settings.  
+Pre-specified Model Settings: 
 
-1. $f_{Y_i}(y)$ is log-normal, Gamma, or Weibull. 
+1. $f_{Y_i}(y)$ is log-Normal, Gamma, or Weibull. 
 
-1. $\sigma^2_\beta=$ 1, 10, or 100.  
+1. $\sigma^2_\beta=100 \Rightarrow$ flat prior. 
 
-1. $c = d = 0.001 \Rightarrow$ flat prior.  
+1. $c = d = 0.01 \Rightarrow$ flat prior.  
 
-1. $\sigma^2_b = 10$. Reasonable flat prior, shrinkage towards no over dispersion.  
+1. $\sigma^2_b = 1$. High shrinkage because we do not expect crazy over dispersion.  
 
-# Validation 
+Pre-specified Model Validation:
 
+1. Convergence - $\hat R \leq 1.1$
+
+1. Fit - Posterior Predictive Distribution Quantiles (10%) 
+
+1. General Stan warnings. 
+
+Decision Criteria: 
+
+1. Assuming valid fit a convergence, we will base the "significance" of a predictor based on a 95% credible interval. 
+
+1. Agreement across likelihood is seen as stronger evidence. 
+
+# Results 
+
+```{r}
+library(cmdstanr)
+# cmdstanr::install_cmdstan() # One time. 
+
+options(mc.cores = parallel::detectCores())
+
+n_chains <- 4
+n_iter <- 5000
+burn_in <- 1000
+```
+
+```{r}
+lik <- 1 #1=log-Normal, 2=Gamma, 3=Weibull
+sigma_beta <- 100
+c <- 0.01; d <- 0.01
+sigma_b <- 1
+
+data <- count_sd_df_clean
+X <- data |> select(-count_sd)
+Y <- data |> pull(count_sd) 
+N <- dim(X)[1]
+P <- dim(X)[2]
+
+stan_data_list <- list(
+    N = N, P = P, X = X, Y = Y, 
+    lik = lik, sigma_beta = sigma_beta, c = c, d = d, sigma_b = sigma_b
+)
+```
+
+```{r}
+#| label: Stan Test Fit 
+#| cache: true
+
+model_1 <- cmdstan_model("./model.stan")
+
+fit_1 <- model_1$sample(
+    data = stan_data_list, 
+    chains = n_chains, iter_sampling = n_iter, iter_warmup = burn_in, 
+    seed = 04272025
+)
+```
 
 \pagebreak
 

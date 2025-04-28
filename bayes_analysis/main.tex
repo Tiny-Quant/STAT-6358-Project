@@ -347,12 +347,12 @@ are explicit, but variable.
   Clear model diagnostic checks.
 \end{enumerate}
 
-Pre-specified Model Settings.
+Pre-specified Model Settings:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \item
-  \(f_{Y_i}(y)\) is log-normal, Gamma, or Weibull.
+  \(f_{Y_i}(y)\) is log-Normal, Gamma, or Weibull.
 \item
   \(\sigma^2_\beta=\) 1, 10, or 100.
 \item
@@ -362,7 +362,32 @@ Pre-specified Model Settings.
   dispersion.
 \end{enumerate}
 
-\section{Validation}\label{validation}
+Pre-specified Model Validation:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Convergence - \(\hat R \leq 1.1\)
+\item
+  Fit - Posterior Predictive Distribution Quantiles (10\%)
+\item
+  General Stan warnings.
+\end{enumerate}
+
+Decision Criteria:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Assuming valid fit a convergence, we will base the ``significance'' of
+  a predictor based on a 95\% credible interval.
+\item
+  ``Significance'' should not vary between priors.
+\item
+  Agreement across likelihood is seen as stronger evidence.
+\end{enumerate}
+
+\section{Results}\label{results}
 
 \pagebreak
 
