@@ -91,6 +91,7 @@ for (i in seq_len(nrow(pipeline_runs))) {
   dge <- dge[filterByExpr(dge), , keep.lib.sizes = FALSE]
   dge <- estimateDisp(dge)
   dge <- calcNormFactors(dge, method = "TMM")
+  group <- factor(treatments)
   design <- model.matrix(~ group)
   fit <- glmFit(dge, design)
   lrt <- glmLRT(fit, coef = 2)
