@@ -36,6 +36,12 @@ DE_sd_samples/
 !DE_sd_samples/.gitkeep
 
 *_cache
+_targets/
+
+# Ignore complied stan models 
+Normal 
+Gamma
+logNormal
 
 _targets/
 

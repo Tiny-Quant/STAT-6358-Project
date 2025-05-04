@@ -78,8 +78,9 @@ p_value_recipe <- DE_sd_df |>
     prep()
 
 effect_size_recipe <- DE_sd_df |>
-    select(-c(runtime_sec, gene_overlap_percent, p_value_sd)) |>
     filter(norm_method != "ALDEx2") |> # Not the same scale as the others.
+    droplevels() |>
+    select(-c(runtime_sec, gene_overlap_percent, p_value_sd)) |>
     recipe(effect_size_sd ~ .) |>
     step_dummy(all_factor_predictors()) |>
     step_interact(terms = ~ (all_predictors())^2) |>

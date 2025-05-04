@@ -104,7 +104,6 @@ We are interested in the effect of pipeline choices on the variation of 3 quanti
 \end{equation}
 Note that the true variable of interest is $Y$, since it will be on the same scale as the underlying variable.   
 
-## Preprocessing 
 ```{r}
 #| label: Meta Data 
 #| echo: false
@@ -135,73 +134,6 @@ treatments <- c(
 )
 
 factors <- c("aligner", "trim_poly_g", "trim_poly_x", "norm_method")
-```
-
-```{r}
-#| label: Load Data
-#| echo: false
-
-count_sd_df_salmon_kallisto <- read.csv("../data/gen_samples/count_sd_df.csv")
-count_sd_df_STAR_HISAT2 <- read.csv("../STAR_HISAT2_combined_results.csv") 
-
-count_sd_df <- rbind(count_sd_df_salmon_kallisto, count_sd_df_STAR_HISAT2) 
-count_sd_df <- count_sd_df |> 
-    mutate(across(any_of(factors), ~ as.factor(.)))
-
-DE_sd_df_salmon_kallisto <- read.csv("../data/gen_samples/DE_sd_df.csv")
-DE_sd_df <- DE_sd_df_salmon_kallisto
-DE_sd_df <- DE_sd_df |> 
-    mutate(across(any_of(factors), ~ as.factor(.)))
-```
-
-```{r}
-#| label: Data Cleaning 
-
-count_recipe <- count_sd_df |> 
-    select(-c(runtime_sec, gene_overlap_percent)) |> 
-    recipe(count_sd ~ .) |> 
-    step_dummy(all_factor_predictors()) |>  
-    step_interact(terms = ~ (all_predictors())^2) |>  
-    # Removes interactions between different levels of the same dummy. 
-    step_zv(all_predictors()) |> 
-    step_intercept() |> 
-    prep()
-
-count_sd_df_clean <- count_recipe |> bake(new_data = NULL)
-
-DE_recipe <- DE_sd_df |> 
-    select(-c(runtime_sec, gene_overlap_percent)) |> 
-    recipe(p_value_sd + effect_size_sd ~ .) |> 
-    step_dummy(all_factor_predictors()) |>  
-    step_interact(terms = ~ (all_predictors())^2) |>  
-    # Removes interactions between different levels of the same dummy. 
-    step_zv(all_predictors()) |> 
-    step_intercept() |> 
-    prep()
-
-DE_sd_df_clean <- DE_recipe |> bake(new_data = NULL)
-p_value_sd_df_clean <- DE_sd_df_clean |> select(-effect_size_sd)
-effect_size_sd_df_clean <- DE_sd_df_clean |> select(-p_value_sd)
-```
-
-```{r}
-#| label: Export cleaned dfs. 
-#| echo: false
-
-write.csv(
-    count_sd_df_clean, "count_sd_df_clean.csv", 
-    row.names = FALSE
-)
-
-write.csv(
-    p_value_sd_df_clean, "p_value_sd_df_clean.csv", 
-    row.names = FALSE
-)
-
-write.csv(
-    effect_size_sd_df_clean, "effect_size_sd_df_clean.csv", 
-    row.names = FALSE
-)
 ```
 
 # Models 
@@ -260,14 +192,20 @@ Decision Criteria:
 # Results 
 
 ```{r}
+#| label: Load cleaned data. 
+
+count_sd_df_clean <- read.csv("./data/count_sd_df_clean.csv") 
+```
+
+```{r}
 library(cmdstanr)
 # cmdstanr::install_cmdstan() # One time. 
 
 options(mc.cores = parallel::detectCores())
 
-n_chains <- 4
-n_iter <- 5000
-burn_in <- 1000
+n_chains <- 2
+n_iter <- 500
+burn_in <- 100
 ```
 
 ```{r}

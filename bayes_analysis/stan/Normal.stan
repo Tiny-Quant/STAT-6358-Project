@@ -3,11 +3,10 @@ data{
     int<lower=1> P; // Number of predictors. 
     matrix[N, P] X; // Design matrix.  
     vector<lower=0>[N] Y; // Outcome. 
-    int<lower=1,upper=3> lik; // 1=log-Normal, 2=Gamma, 3=Weibull
+    int<lower=1, upper=2> prior_beta; // 1 = normal, 2 = Laplace
     real<lower=0> sigma_beta; 
     real<lower=0> c; 
     real<lower=0> d; 
-    real<lower=0> sigma_b; 
 }
 
 parameters {
@@ -17,22 +16,26 @@ parameters {
 }
 
 transformed parameters {
-    vector[N] mu_Y = X * beta; // Link function. 
+    vector[N] mu_Y = X * beta;
     vector<lower=0>[N] sigma_2_Y = a * pow(mu_Y, b); // Variance power law. 
     vector<lower=0>[N] sigma_Y = sqrt(sigma_2_Y); 
 }
 
 model {
     // Priors 
-    beta ~ normal(0, sigma_beta); 
+    if (prior_beta == 1){
+        beta ~ normal(0, sigma_beta); 
+    } else if (prior_beta == 2) {
+        beta ~ double_exponential(0, sigma_beta); 
+    }
     a ~ gamma(c, d); 
-    b ~ normal(0, sigma_b); 
+    b ~ normal(0, 1); 
 
     // Likelihood
-    target += lognormal_lpdf(Y | mu_Y, sigma_Y); 
+    target += normal_lpdf(Y | mu_Y, sigma_Y);
 }
 
 generated quantities {
     array[N] real<lower=0> Y_post; 
-    Y_post = lognormal_rng(mu_Y, sigma_Y); 
+    Y_post = normal_rng(mu_Y, sigma_Y); 
 }
