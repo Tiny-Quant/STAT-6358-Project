@@ -8,19 +8,21 @@ hisat2_count_dir <- "hisat2_combined_counts"
 star_de_dir <- "star_DE_results"
 hisat2_de_dir <- "hisat2_DE_results"
 
-nih_counts <- read_csv("official_NIH_matrix.csv")
-nih_de <- read_csv("official_DE_results.csv")
+nih_counts <- read_csv("/lustre/work/client/projects/dheitjan/hschuler_dissertatio/main_storage/STAT-6358-Project/data/gen_samples/nih_counts_wide.csv")
+nih_de <- read_csv("/lustre/work/client/projects/dheitjan/hschuler_dissertatio/main_storage/STAT-6358-Project/data/gen_samples/nih_DE.csv")
 
 # ---- Helpers ----
 
 # For DE files: DE_hisat2_Q20_L35_G0_X0_J19069379.csv or DE_star_Q20_L35_G0_X0_J19069379.csv
 extract_config_de <- function(fname) {
-  m <- str_match(fname, "Q([0-9]+)_L([0-9]+)_G([0-9]+)_X([0-9]+)_J[0-9]+")
+  m <- str_match(fname, "Q([0-9]+)_L([0-9]+)_G([0-9]+)_X([0-9]+)_J([0-9]+)_([A-Za-z0-9]+)\\.csv$")
   list(
     min_phred = as.integer(m[2]),
     min_length = as.integer(m[3]),
     trim_poly_g = as.integer(m[4]),
-    trim_poly_x = as.integer(m[5])
+    trim_poly_x = as.integer(m[5]),
+    jobFlag = m[6],
+    norm_method = m[7]
   )
 }
 
@@ -58,11 +60,29 @@ summarize_counts <- function(file, nih_counts) {
 summarize_de <- function(file, nih_de) {
   df <- read_csv(file, show_col_types = FALSE)
   colnames(df)[1] <- "gene"
+  df <- df %>%
+    rename(
+      p_value = PValue,
+      effect_size = logFC
+    )
   common_genes <- intersect(df$gene, nih_de$gene)
+  if (length(common_genes) == 0) {
+    message("No common genes found in: ", file)
+    return(tibble(
+      p_value_sd = NA,
+      effect_size_sd = NA,
+      aligner = ifelse(str_detect(file, "star"), "STAR", "HISAT2"),
+      min_phred = NA,
+      min_length = NA,
+      trim_poly_g = NA,
+      trim_poly_x = NA,
+      norm_method = NA
+    ))
+  }
   df <- df %>% filter(gene %in% common_genes) %>% arrange(gene)
   nih <- nih_de %>% filter(gene %in% common_genes) %>% arrange(gene)
-  p_value_sd <- mean((df$PValue - nih$PValue)^2)
-  effect_size_sd <- mean((df$logFC - nih$logFC)^2)
+  p_value_sd <- mean((df$p_value - nih$p_value)^2)
+  effect_size_sd <- mean((df$effect_size - nih$effect_size)^2)
   config <- extract_config_de(basename(file))
   tibble(
     p_value_sd = p_value_sd,
@@ -71,7 +91,8 @@ summarize_de <- function(file, nih_de) {
     min_phred = config$min_phred,
     min_length = config$min_length,
     trim_poly_g = config$trim_poly_g,
-    trim_poly_x = config$trim_poly_x
+    trim_poly_x = config$trim_poly_x,
+    norm_method = config$norm_method
   )
 }
 

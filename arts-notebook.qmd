@@ -84,17 +84,27 @@ factors <- c("aligner", "trim_poly_g", "trim_poly_x", "norm_method")
 ```{r}
 #| label: Load Data
 
+# Load all relevant summary data
 count_sd_df_salmon_kallisto <- read.csv("./data/gen_samples/count_sd_df.csv")
 count_sd_df_STAR_HISAT2 <- read.csv("./STAR_HISAT2_combined_results.csv") 
+count_sd_df_star_hisat2 <- read.csv("count_sd_df_star_hisat2.csv")
 
-count_sd_df <- rbind(count_sd_df_salmon_kallisto, count_sd_df_STAR_HISAT2) 
-count_sd_df <- count_sd_df |> 
-    mutate(across(any_of(factors), ~ as.factor(.)))
+# Combine ALL count summary data
+count_sd_df <- bind_rows(
+  count_sd_df_salmon_kallisto,
+  count_sd_df_STAR_HISAT2,
+  count_sd_df_star_hisat2
+)
+
+# Convert factor columns
+factors <- c("aligner", "trim_poly_g", "trim_poly_x", "norm_method")
+count_sd_df <- count_sd_df |> mutate(across(any_of(factors), ~ as.factor(.)))
 
 DE_sd_df_salmon_kallisto <- read.csv("./data/gen_samples/DE_sd_df.csv")
-DE_sd_df <- DE_sd_df_salmon_kallisto
-DE_sd_df <- DE_sd_df |> 
-    mutate(across(any_of(factors), ~ as.factor(.)))
+DE_sd_df_star_hisat2 <- read.csv("DE_sd_df_star_hisat2.csv")
+DE_sd_df <- bind_rows(DE_sd_df_salmon_kallisto, DE_sd_df_star_hisat2)
+factors <- c("aligner", "trim_poly_g", "trim_poly_x", "norm_method")
+DE_sd_df <- DE_sd_df |> mutate(across(any_of(factors), ~ as.factor(.)))
 ```
 
 ```{r}

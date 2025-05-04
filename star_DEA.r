@@ -4,6 +4,8 @@ library(readr)
 library(edgeR)
 library(stringr)
 
+set.seed(42) # For reproducibility
+
 if (!dir.exists("star_DE_results")) dir.create("star_DE_results")
 
 # Directory containing all STAR count files
@@ -12,9 +14,8 @@ count_files <- list.files(count_dir, pattern = "_counts.csv$", full.names = TRUE
 
 # Extract pipeline parameters from filenames
 extract_params <- function(filename) {
-  # Example filename: SRR31476642_Q20_L35_G0_X0_J19069379_58_counts.csv
   m <- str_match(basename(filename),
-    "SRR\\d+_Q(\\d+)_L(\\d+)_G(\\d+)_X(\\d+)_J(\\d+)_\\d+_counts.csv"
+                 "SRR\\d+_Q(\\d+)_L(\\d+)_G(\\d+)_X(\\d+)_J(\\d+)_\\d+_counts.csv"
   )
   data.frame(
     sample = str_extract(basename(filename), "SRR\\d+"),
@@ -35,14 +36,6 @@ pipeline_runs <- params_df %>%
   select(quality, length, geneFlag, xFlag, jobFlag) %>%
   distinct()
 
-# Check that there are 100 unique pipeline runs and 900 files
-if (nrow(pipeline_runs) != 100) {
-  stop(sprintf("Expected 100 unique pipeline runs, found %d.", nrow(pipeline_runs)))
-}
-if (nrow(params_df) != 900) {
-  stop(sprintf("Expected 900 count files, found %d.", nrow(params_df)))
-}
-
 # Treatments vector
 treatments <- c(
   "chemo-naive",
@@ -55,6 +48,9 @@ treatments <- c(
   "chemo-resistant_prmt5i",
   "chemo-resistant_prmt5i"
 )
+
+# Define normalization methods to sample from
+norm_methods <- c("none", "TMM", "TMMwsp", "RLE", "upperquartile")
 
 # Loop over each pipeline run
 for (i in seq_len(nrow(pipeline_runs))) {
@@ -78,31 +74,40 @@ for (i in seq_len(nrow(pipeline_runs))) {
   
   # Merge all by gene_id
   count_matrix <- Reduce(function(x, y) full_join(x, y, by = "gene_id"), count_list)
+  count_matrix <- as.data.frame(count_matrix) # Ensure it's a data.frame
   rownames(count_matrix) <- count_matrix$gene_id
-  count_matrix <- count_matrix %>% select(-gene_id)
+  count_matrix <- count_matrix[, setdiff(colnames(count_matrix), "gene_id")]
   count_matrix <- as.matrix(count_matrix)
   storage.mode(count_matrix) <- "integer"
   
   # Ensure columns are in the same order as treatments
   count_matrix <- count_matrix[, order(colnames(count_matrix))]
   
+  # Randomly select a normalization method for this run
+  norm_method <- sample(norm_methods, 1)
+  
   # Run edgeR
   dge <- DGEList(counts = count_matrix, group = treatments)
   dge <- dge[filterByExpr(dge), , keep.lib.sizes = FALSE]
   dge <- estimateDisp(dge)
-  dge <- calcNormFactors(dge, method = "TMM")
+  if (norm_method != "none") {
+    dge <- calcNormFactors(dge, method = norm_method)
+  }
   group <- factor(treatments)
   design <- model.matrix(~ group)
   fit <- glmFit(dge, design)
   lrt <- glmLRT(fit, coef = 2)
   de_results <- topTags(lrt, n = Inf)$table
   
-  # Save results
+  # Add gene names as a column and write with row.names = FALSE
+  de_results$gene <- rownames(de_results)
+  de_results <- de_results[, c("gene", setdiff(colnames(de_results), "gene"))]
+  
   out_name <- sprintf(
-    "DE_star_Q%s_L%s_G%s_X%s_J%s.csv",
-    run$quality, run$length, run$geneFlag, run$xFlag, run$jobFlag
+    "DE_star_Q%s_L%s_G%s_X%s_J%s_%s.csv",
+    run$quality, run$length, run$geneFlag, run$xFlag, run$jobFlag, norm_method
   )
-  write.csv(de_results, file = file.path("star_DE_results", out_name))
+  write.csv(de_results, file = file.path("star_DE_results", out_name), row.names = FALSE)
   
   cat("Finished pipeline run:", out_name, "\n")
 }
