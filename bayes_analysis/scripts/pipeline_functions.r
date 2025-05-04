@@ -1,0 +1,94 @@
+# Libraries
+library(tidyverse)
+library(cmdstanr)
+
+options(mc.cores = parallel::detectCores())
+
+# Meta Data
+response_vars <- c("count_sd", "p_value_sd", "effect_size_sd")
+
+# Hyperparameters
+n_chains <- 2
+n_iter <- 500
+burn_in <- 100
+
+# Functions
+
+define_model_grid <- function() {
+    datasets <- list.files("data", pattern = "\\.csv", full.names = TRUE)
+
+    models <- tibble(
+        model_name = c("Normal", "logNormal", "Gamma"),
+        stan_file = c(
+            "stan/Normal.stan", "stan/logNormal.stan", "stan/Gamma.stan"
+        )
+    )
+
+    priors <- tibble(
+        prior_name = c("ridge", "lasso", "weak ridge", "weak lasso"),
+        prior_beta = c(1, 2, 1, 2),
+        prior_args = list(
+            list(sigma_beta = 10, c = 0.1, d = 0.1),
+            list(sigma_beta = 10, c = 0.1, d = 0.1),
+            list(sigma_beta = 100, c = 0.01, d = 0.01),
+            list(sigma_beta = 100, c = 0.01, d = 0.01)
+        )
+    )
+
+    parameter_grid <- expand.grid(
+        dataset = datasets,
+        model_name = models$model_name,
+        prior_name = priors$prior_name,
+        stringsAsFactors = FALSE
+    ) |>
+        as_tibble() |>
+        left_join(models, by = "model_name") |>
+        left_join(priors, by = "prior_name")
+
+    return(parameter_grid)
+}
+
+prepare_stan_data <- function(dataset, prior_beta, prior_args) {
+    df <- read_csv(dataset)
+
+    Y <- df |>
+        select(any_of(response_vars)) |>
+        pull()
+    X <- df |>
+        select(-any_of(response_vars)) |>
+        as.matrix()
+
+    stan_data_list <- list(
+        N = nrow(df),
+        P = ncol(X),
+        Y = Y,
+        X = X,
+        prior_beta = prior_beta,
+        sigma_beta = prior_args$sigma_beta,
+        c = prior_args$c,
+        d = prior_args$d
+    )
+
+    return(stan_data_list)
+}
+
+fit_stan_model <- function(model_grid_row, n_chains, n_iter, burn_in) {
+    model <- cmdstan_model(model_grid_row$stan_file)
+
+    stan_data_list <- prepare_stan_data(
+        dataset = model_grid_row$dataset,
+        prior_beta = model_grid_row$prior_beta,
+        prior_args = model_grid_row$prior_args[[1]]
+    )
+
+    fit <- model$sample(
+        data = stan_data_list,
+        chains = n_chains, iter_sampling = n_iter,
+        iter_warmup = burn_in,
+        seed = 05042025
+    )
+
+    attr(fit, "run_info") <- model_grid_row # Adds in meta data.
+
+    return(fit)
+}
