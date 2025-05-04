@@ -288,38 +288,6 @@ matrix. Now we can define the form of our target variable:\\
 \end{equation} Note that the true variable of interest is \(Y\), since
 it will be on the same scale as the underlying variable.
 
-\subsection{Preprocessing}\label{preprocessing}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{count\_recipe }\OtherTok{\textless{}{-}}\NormalTok{ count\_sd\_df }\SpecialCharTok{|\textgreater{}} 
-    \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(runtime\_sec, gene\_overlap\_percent)) }\SpecialCharTok{|\textgreater{}} 
-    \FunctionTok{recipe}\NormalTok{(count\_sd }\SpecialCharTok{\textasciitilde{}}\NormalTok{ .) }\SpecialCharTok{|\textgreater{}} 
-    \FunctionTok{step\_dummy}\NormalTok{(}\FunctionTok{all\_factor\_predictors}\NormalTok{()) }\SpecialCharTok{|\textgreater{}}  
-    \FunctionTok{step\_interact}\NormalTok{(}\AttributeTok{terms =} \SpecialCharTok{\textasciitilde{}}\NormalTok{ (}\FunctionTok{all\_predictors}\NormalTok{())}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{|\textgreater{}}  
-    \CommentTok{\# Removes interactions between different levels of the same dummy. }
-    \FunctionTok{step\_zv}\NormalTok{(}\FunctionTok{all\_predictors}\NormalTok{()) }\SpecialCharTok{|\textgreater{}} 
-    \FunctionTok{step\_intercept}\NormalTok{() }\SpecialCharTok{|\textgreater{}} 
-    \FunctionTok{prep}\NormalTok{()}
-
-\NormalTok{count\_sd\_df\_clean }\OtherTok{\textless{}{-}}\NormalTok{ count\_recipe }\SpecialCharTok{|\textgreater{}} \FunctionTok{bake}\NormalTok{(}\AttributeTok{new\_data =} \ConstantTok{NULL}\NormalTok{)}
-
-\NormalTok{DE\_recipe }\OtherTok{\textless{}{-}}\NormalTok{ DE\_sd\_df }\SpecialCharTok{|\textgreater{}} 
-    \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\FunctionTok{c}\NormalTok{(runtime\_sec, gene\_overlap\_percent)) }\SpecialCharTok{|\textgreater{}} 
-    \FunctionTok{recipe}\NormalTok{(p\_value\_sd }\SpecialCharTok{+}\NormalTok{ effect\_size\_sd }\SpecialCharTok{\textasciitilde{}}\NormalTok{ .) }\SpecialCharTok{|\textgreater{}} 
-    \FunctionTok{step\_dummy}\NormalTok{(}\FunctionTok{all\_factor\_predictors}\NormalTok{()) }\SpecialCharTok{|\textgreater{}}  
-    \FunctionTok{step\_interact}\NormalTok{(}\AttributeTok{terms =} \SpecialCharTok{\textasciitilde{}}\NormalTok{ (}\FunctionTok{all\_predictors}\NormalTok{())}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{|\textgreater{}}  
-    \CommentTok{\# Removes interactions between different levels of the same dummy. }
-    \FunctionTok{step\_zv}\NormalTok{(}\FunctionTok{all\_predictors}\NormalTok{()) }\SpecialCharTok{|\textgreater{}} 
-    \FunctionTok{step\_intercept}\NormalTok{() }\SpecialCharTok{|\textgreater{}} 
-    \FunctionTok{prep}\NormalTok{()}
-
-\NormalTok{DE\_sd\_df\_clean }\OtherTok{\textless{}{-}}\NormalTok{ DE\_recipe }\SpecialCharTok{|\textgreater{}} \FunctionTok{bake}\NormalTok{(}\AttributeTok{new\_data =} \ConstantTok{NULL}\NormalTok{)}
-\NormalTok{p\_value\_sd\_df\_clean }\OtherTok{\textless{}{-}}\NormalTok{ DE\_sd\_df\_clean }\SpecialCharTok{|\textgreater{}} \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{effect\_size\_sd)}
-\NormalTok{effect\_size\_sd\_df\_clean }\OtherTok{\textless{}{-}}\NormalTok{ DE\_sd\_df\_clean }\SpecialCharTok{|\textgreater{}} \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{p\_value\_sd)}
-\end{Highlighting}
-\end{Shaded}
-
 \section{Models}\label{models}
 
 We propose a Bayesian hierarchical model building from the fact that
@@ -398,14 +366,20 @@ Decision Criteria:
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\NormalTok{count\_sd\_df\_clean }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"./data/count\_sd\_df\_clean.csv"}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(cmdstanr)}
 \CommentTok{\# cmdstanr::install\_cmdstan() \# One time. }
 
 \FunctionTok{options}\NormalTok{(}\AttributeTok{mc.cores =}\NormalTok{ parallel}\SpecialCharTok{::}\FunctionTok{detectCores}\NormalTok{())}
 
-\NormalTok{n\_chains }\OtherTok{\textless{}{-}} \DecValTok{4}
-\NormalTok{n\_iter }\OtherTok{\textless{}{-}} \DecValTok{5000}
-\NormalTok{burn\_in }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\NormalTok{n\_chains }\OtherTok{\textless{}{-}} \DecValTok{2}
+\NormalTok{n\_iter }\OtherTok{\textless{}{-}} \DecValTok{500}
+\NormalTok{burn\_in }\OtherTok{\textless{}{-}} \DecValTok{100}
 \end{Highlighting}
 \end{Shaded}
 
