@@ -45,10 +45,11 @@ summarize_counts <- function(file, nih_counts) {
   nih <- nih_counts %>% filter(gene_id %in% common_genes) %>% arrange(gene_id)
   mat1 <- as.matrix(df[,-1])
   mat2 <- as.matrix(nih[,-1])
-  count_sd <- mean((mat1 - mat2)^2)
+  # Use RMSE instead of mean squared difference
+  count_rmse <- sqrt(mean((mat1 - mat2)^2))
   config <- extract_config_count(basename(file))
   tibble(
-    count_sd = count_sd,
+    count_sd = count_rmse,
     aligner = ifelse(str_detect(file, "star"), "STAR", "HISAT2"),
     min_phred = config$min_phred,
     min_length = config$min_length,
