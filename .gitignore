@@ -35,6 +35,8 @@ count_sd_samples/
 DE_sd_samples/
 !DE_sd_samples/.gitkeep
 
+*_cache
+
 hisat2_results/
 star_results/
 
