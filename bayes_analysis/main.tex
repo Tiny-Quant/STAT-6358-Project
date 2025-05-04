@@ -1,4 +1,5 @@
 % Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
 \PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
@@ -6,21 +7,23 @@
 \documentclass[
   letterpaper,
 ]{article}
-
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
 \else % if luatex or xetex
-  \usepackage{unicode-math}
+  \usepackage{unicode-math} % this also loads fontspec
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
 \usepackage{lmodern}
-\ifPDFTeX\else  
-    % xetex/luatex font selection
+\ifPDFTeX\else
+  % xetex/luatex font selection
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -38,10 +41,6 @@
 }{% if KOMA class
   \KOMAoptions{parskip=half}}
 \makeatother
-\usepackage{xcolor}
-\usepackage[margin=1in]{geometry}
-\setlength{\emergencystretch}{3em} % prevent overfull lines
-\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 % Make \paragraph and \subparagraph free-standing
 \makeatletter
 \ifx\paragraph\undefined\else
@@ -107,8 +106,7 @@
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
 
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
 \usepackage{etoolbox}
@@ -133,6 +131,20 @@
 % Set default figure placement to htbp
 \def\fps@figure{htbp}
 \makeatother
+
+
+
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+
 
 
 \usepackage{booktabs}
@@ -190,11 +202,9 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
-
 \usepackage{bookmark}
-
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\urlstyle{same} % disable monospaced font for URLs
+\urlstyle{same}
 \hypersetup{
   pdftitle={Variance All the Way Down: Exploring the Impact of RNA-Seq Pipeline Choices on Differential Expression Variance},
   pdfauthor={Art Tay and Hunter Schuler},
@@ -210,7 +220,6 @@
 RNA-Seq Pipeline Choices on Differential Expression Variance}
 \author{Art Tay and Hunter Schuler}
 \date{}
-
 \begin{document}
 \maketitle
 
@@ -354,11 +363,11 @@ Pre-specified Model Settings:
 \item
   \(f_{Y_i}(y)\) is log-Normal, Gamma, or Weibull.
 \item
-  \(\sigma^2_\beta=\) 1, 10, or 100.
+  \(\sigma^2_\beta=100 \Rightarrow\) flat prior.
 \item
-  \(c = d = 0.001 \Rightarrow\) flat prior.
+  \(c = d = 0.01 \Rightarrow\) flat prior.
 \item
-  \(\sigma^2_b = 10\). Reasonable flat prior, shrinkage towards no over
+  \(\sigma^2_b = 1\). High shrinkage because we do not expect crazy over
   dispersion.
 \end{enumerate}
 
@@ -382,12 +391,330 @@ Decision Criteria:
   Assuming valid fit a convergence, we will base the ``significance'' of
   a predictor based on a 95\% credible interval.
 \item
-  ``Significance'' should not vary between priors.
-\item
   Agreement across likelihood is seen as stronger evidence.
 \end{enumerate}
 
 \section{Results}\label{results}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(cmdstanr)}
+\CommentTok{\# cmdstanr::install\_cmdstan() \# One time. }
+
+\FunctionTok{options}\NormalTok{(}\AttributeTok{mc.cores =}\NormalTok{ parallel}\SpecialCharTok{::}\FunctionTok{detectCores}\NormalTok{())}
+
+\NormalTok{n\_chains }\OtherTok{\textless{}{-}} \DecValTok{4}
+\NormalTok{n\_iter }\OtherTok{\textless{}{-}} \DecValTok{5000}
+\NormalTok{burn\_in }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lik }\OtherTok{\textless{}{-}} \DecValTok{1} \CommentTok{\#1=log{-}Normal, 2=Gamma, 3=Weibull}
+\NormalTok{sigma\_beta }\OtherTok{\textless{}{-}} \DecValTok{100}
+\NormalTok{c }\OtherTok{\textless{}{-}} \FloatTok{0.01}\NormalTok{; d }\OtherTok{\textless{}{-}} \FloatTok{0.01}
+\NormalTok{sigma\_b }\OtherTok{\textless{}{-}} \DecValTok{1}
+
+\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ count\_sd\_df\_clean}
+\NormalTok{X }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{|\textgreater{}} \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{count\_sd)}
+\NormalTok{Y }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{|\textgreater{}} \FunctionTok{pull}\NormalTok{(count\_sd) }
+\NormalTok{N }\OtherTok{\textless{}{-}} \FunctionTok{dim}\NormalTok{(X)[}\DecValTok{1}\NormalTok{]}
+\NormalTok{P }\OtherTok{\textless{}{-}} \FunctionTok{dim}\NormalTok{(X)[}\DecValTok{2}\NormalTok{]}
+
+\NormalTok{stan\_data\_list }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{N =}\NormalTok{ N, }\AttributeTok{P =}\NormalTok{ P, }\AttributeTok{X =}\NormalTok{ X, }\AttributeTok{Y =}\NormalTok{ Y, }
+    \AttributeTok{lik =}\NormalTok{ lik, }\AttributeTok{sigma\_beta =}\NormalTok{ sigma\_beta, }\AttributeTok{c =}\NormalTok{ c, }\AttributeTok{d =}\NormalTok{ d, }\AttributeTok{sigma\_b =}\NormalTok{ sigma\_b}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model\_1 }\OtherTok{\textless{}{-}} \FunctionTok{cmdstan\_model}\NormalTok{(}\StringTok{"./model.stan"}\NormalTok{)}
+
+\NormalTok{fit\_1 }\OtherTok{\textless{}{-}}\NormalTok{ model\_1}\SpecialCharTok{$}\FunctionTok{sample}\NormalTok{(}
+    \AttributeTok{data =}\NormalTok{ stan\_data\_list, }
+    \AttributeTok{chains =}\NormalTok{ n\_chains, }\AttributeTok{iter\_sampling =}\NormalTok{ n\_iter, }\AttributeTok{iter\_warmup =}\NormalTok{ burn\_in, }
+    \AttributeTok{seed =} \DecValTok{04272025}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Running MCMC with 4 chains, at most 64 in parallel...
+\end{verbatim}
+
+\begin{verbatim}
+Chain 1 Iteration:    1 / 6000 [  0%]  (Warmup) 
+\end{verbatim}
+
+\begin{verbatim}
+Chain 2 Iteration:    1 / 6000 [  0%]  (Warmup) 
+\end{verbatim}
+
+\begin{verbatim}
+Chain 3 Iteration:    1 / 6000 [  0%]  (Warmup) 
+\end{verbatim}
+
+\begin{verbatim}
+Chain 4 Iteration:    1 / 6000 [  0%]  (Warmup) 
+\end{verbatim}
+
+\begin{verbatim}
+Chain 2 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 1 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 4 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 3 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 2 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 3 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 4 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 1 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 2 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 1 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 3 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 4 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 2 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 3 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 4 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 1 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 2 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 3 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 4 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 1 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 2 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 3 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 4 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 1 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 2 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 3 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 4 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 1 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 2 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 3 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 1 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 4 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 2 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 3 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 4 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 1 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 2 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 2 Iteration: 1001 / 6000 [ 16%]  (Sampling) 
+Chain 3 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 3 Iteration: 1001 / 6000 [ 16%]  (Sampling) 
+Chain 4 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 4 Iteration: 1001 / 6000 [ 16%]  (Sampling) 
+Chain 1 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 1 Iteration: 1001 / 6000 [ 16%]  (Sampling) 
+Chain 2 Iteration: 1100 / 6000 [ 18%]  (Sampling) 
+Chain 3 Iteration: 1100 / 6000 [ 18%]  (Sampling) 
+Chain 4 Iteration: 1100 / 6000 [ 18%]  (Sampling) 
+Chain 1 Iteration: 1100 / 6000 [ 18%]  (Sampling) 
+Chain 2 Iteration: 1200 / 6000 [ 20%]  (Sampling) 
+Chain 3 Iteration: 1200 / 6000 [ 20%]  (Sampling) 
+Chain 4 Iteration: 1200 / 6000 [ 20%]  (Sampling) 
+Chain 1 Iteration: 1200 / 6000 [ 20%]  (Sampling) 
+Chain 2 Iteration: 1300 / 6000 [ 21%]  (Sampling) 
+Chain 3 Iteration: 1300 / 6000 [ 21%]  (Sampling) 
+Chain 4 Iteration: 1300 / 6000 [ 21%]  (Sampling) 
+Chain 1 Iteration: 1300 / 6000 [ 21%]  (Sampling) 
+Chain 2 Iteration: 1400 / 6000 [ 23%]  (Sampling) 
+Chain 3 Iteration: 1400 / 6000 [ 23%]  (Sampling) 
+Chain 4 Iteration: 1400 / 6000 [ 23%]  (Sampling) 
+Chain 1 Iteration: 1400 / 6000 [ 23%]  (Sampling) 
+Chain 2 Iteration: 1500 / 6000 [ 25%]  (Sampling) 
+Chain 3 Iteration: 1500 / 6000 [ 25%]  (Sampling) 
+Chain 1 Iteration: 1500 / 6000 [ 25%]  (Sampling) 
+Chain 4 Iteration: 1500 / 6000 [ 25%]  (Sampling) 
+Chain 2 Iteration: 1600 / 6000 [ 26%]  (Sampling) 
+Chain 3 Iteration: 1600 / 6000 [ 26%]  (Sampling) 
+Chain 1 Iteration: 1600 / 6000 [ 26%]  (Sampling) 
+Chain 4 Iteration: 1600 / 6000 [ 26%]  (Sampling) 
+Chain 2 Iteration: 1700 / 6000 [ 28%]  (Sampling) 
+Chain 3 Iteration: 1700 / 6000 [ 28%]  (Sampling) 
+Chain 4 Iteration: 1700 / 6000 [ 28%]  (Sampling) 
+Chain 1 Iteration: 1700 / 6000 [ 28%]  (Sampling) 
+Chain 2 Iteration: 1800 / 6000 [ 30%]  (Sampling) 
+Chain 3 Iteration: 1800 / 6000 [ 30%]  (Sampling) 
+Chain 4 Iteration: 1800 / 6000 [ 30%]  (Sampling) 
+Chain 1 Iteration: 1800 / 6000 [ 30%]  (Sampling) 
+Chain 2 Iteration: 1900 / 6000 [ 31%]  (Sampling) 
+Chain 3 Iteration: 1900 / 6000 [ 31%]  (Sampling) 
+Chain 4 Iteration: 1900 / 6000 [ 31%]  (Sampling) 
+Chain 1 Iteration: 1900 / 6000 [ 31%]  (Sampling) 
+Chain 2 Iteration: 2000 / 6000 [ 33%]  (Sampling) 
+Chain 3 Iteration: 2000 / 6000 [ 33%]  (Sampling) 
+Chain 1 Iteration: 2000 / 6000 [ 33%]  (Sampling) 
+Chain 4 Iteration: 2000 / 6000 [ 33%]  (Sampling) 
+Chain 2 Iteration: 2100 / 6000 [ 35%]  (Sampling) 
+Chain 1 Iteration: 2100 / 6000 [ 35%]  (Sampling) 
+Chain 3 Iteration: 2100 / 6000 [ 35%]  (Sampling) 
+Chain 4 Iteration: 2100 / 6000 [ 35%]  (Sampling) 
+Chain 2 Iteration: 2200 / 6000 [ 36%]  (Sampling) 
+Chain 3 Iteration: 2200 / 6000 [ 36%]  (Sampling) 
+Chain 1 Iteration: 2200 / 6000 [ 36%]  (Sampling) 
+Chain 4 Iteration: 2200 / 6000 [ 36%]  (Sampling) 
+Chain 2 Iteration: 2300 / 6000 [ 38%]  (Sampling) 
+Chain 3 Iteration: 2300 / 6000 [ 38%]  (Sampling) 
+Chain 1 Iteration: 2300 / 6000 [ 38%]  (Sampling) 
+Chain 4 Iteration: 2300 / 6000 [ 38%]  (Sampling) 
+Chain 2 Iteration: 2400 / 6000 [ 40%]  (Sampling) 
+Chain 1 Iteration: 2400 / 6000 [ 40%]  (Sampling) 
+Chain 3 Iteration: 2400 / 6000 [ 40%]  (Sampling) 
+Chain 4 Iteration: 2400 / 6000 [ 40%]  (Sampling) 
+Chain 2 Iteration: 2500 / 6000 [ 41%]  (Sampling) 
+Chain 3 Iteration: 2500 / 6000 [ 41%]  (Sampling) 
+Chain 1 Iteration: 2500 / 6000 [ 41%]  (Sampling) 
+Chain 4 Iteration: 2500 / 6000 [ 41%]  (Sampling) 
+Chain 2 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 3 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 1 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 4 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 2 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 1 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 3 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 4 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 1 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 2 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 3 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 4 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 2 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 3 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 1 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 4 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 3 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 1 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 2 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 4 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 1 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 2 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 3 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 4 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 1 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 2 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 3 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 4 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 3 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 1 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 2 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 4 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 3 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 1 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 2 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 4 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 1 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 3 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 2 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 4 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 1 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 3 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 2 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 4 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 1 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 3 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 2 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 4 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 1 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 3 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 2 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 4 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 1 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 3 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 2 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 4 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 3 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 1 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 2 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 4 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 3 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 1 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 2 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 4 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 3 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 1 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 2 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 4 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 1 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 3 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 2 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 4 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 1 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 3 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 2 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 4 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 1 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 3 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 2 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 4 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 1 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 3 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 4 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 2 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 1 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 3 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 2 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 4 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 1 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 3 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 2 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 4 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 1 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 3 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 2 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 4 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 1 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 3 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 2 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 4 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 1 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 3 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 2 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 4 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 1 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 3 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 2 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 4 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 1 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 3 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 2 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 4 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 1 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 3 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 2 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 4 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 1 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 3 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 2 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 4 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 1 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 3 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 2 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 4 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 1 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 3 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 2 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 4 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 1 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 3 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 2 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 4 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 1 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 3 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 2 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 4 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 1 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 1 finished in 172.6 seconds.
+Chain 3 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 3 finished in 172.7 seconds.
+Chain 4 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 2 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 2 finished in 173.0 seconds.
+Chain 4 finished in 172.9 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 172.8 seconds.
+Total execution time: 173.2 seconds.
+\end{verbatim}
 
 \pagebreak
 
