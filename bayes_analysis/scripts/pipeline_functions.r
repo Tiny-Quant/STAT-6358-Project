@@ -1,5 +1,6 @@
 # Libraries
 library(tidyverse)
+library(kableExtra)
 library(cmdstanr)
 
 options(mc.cores = parallel::detectCores())
@@ -8,9 +9,9 @@ options(mc.cores = parallel::detectCores())
 response_vars <- c("count_sd", "p_value_sd", "effect_size_sd")
 
 # Hyperparameters
-n_chains <- 2
-n_iter <- 500
-burn_in <- 100
+n_chains <- 4
+n_iter <- 10000
+burn_in <- 2000
 
 # Functions
 
@@ -91,4 +92,44 @@ fit_stan_model <- function(model_grid_row, n_chains, n_iter, burn_in) {
     attr(fit, "run_info") <- model_grid_row # Adds in meta data.
 
     return(fit)
+}
+
+beta_table <- function(stan_fit) {
+    browser()
+    run_info <- attr(stan_fit, "run_info")
+
+    # Extract dataset name.
+    dataset_name <- case_when(
+        str_detect(run_info$dataset, "count") ~ "count",
+        str_detect(run_info$dataset, "p_value") ~ "p-value",
+        str_detect(run_info$dataset, "effect_size") ~ "effect size",
+        TRUE ~ "unknown"
+    )
+
+    caption <- paste(
+        "Summary of", dataset_name, run_info$model_name, "model with",
+        run_info$prior_name, "prior"
+    )
+
+    # Extract predictor names.
+    pred_names <- read_csv(run_info$dataset) |>
+        select(-any_of(response_vars)) |>
+        colnames()
+
+    beta_summary <- stan_fit$summary(variables = "beta") |>
+        mutate(predictor = pred_names) |>
+        mutate(avg_ess = (ess_bulk + ess_tail) / 2) |>
+        mutate(avg_ess_percent = avg_ess / (n_iter * n_chains)) |>
+        # filter(!between(0, q5, q95)) |>
+        filter(rhat <= 1.1) |>
+        select(predictor, mean, sd, q5, q95, rhat, avg_ess_percent)
+
+    table_1 <- beta_summary |>
+        kbl(
+            format = "latex", booktabs = T,
+            longtable = T, linesep = "", align = "c",
+            caption = caption, digits = 4
+        )
+
+    return(table_1)
 }
