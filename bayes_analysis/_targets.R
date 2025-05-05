@@ -9,8 +9,9 @@ library(tarchetypes) # Load other packages as needed.
 
 # Set target options:
 tar_option_set(
-    packages = c("tidyverse", "cmdstanr"), # Packages that your targets need for their tasks.
+    packages = c("tidyverse", "cmdstanr", "kableExtra"), # Packages that your targets need for their tasks.
     format = "rds",
+    error = "null",
     # format = "qs", # Optionally set the default storage format. qs is fast.
     #
     # Pipelines that take a long time to run may benefit from
@@ -63,5 +64,22 @@ list(
         ),
         pattern = map(model_grid),
         iteration = "list"
+    ),
+    tar_target(
+        beta_tables,
+        beta_table(stan_fit),
+        pattern = map(stan_fit),
+        iteration = "list"
+    ),
+    # tar_target(
+    #     ppc_plots,
+    #     post_pred_check(stan_fit),
+    #     pattern = map(stan_fit),
+    #     iteration = "list"
+    # ),
+    tar_quarto(
+        report,
+        path = "model_report.qmd",
+        quiet = FALSE
     )
 )

@@ -61,14 +61,16 @@ write.csv(
 )
 
 # Prep differential expression data.
+DE_sd_df_salmon_kallisto <- read.csv("../data/gen_samples/DE_sd_df.csv") |>
+    select(-c(runtime_sec, gene_overlap_percent))
+DE_sd_df_STAR_HISAT2 <- read.csv("../DE_sd_df_star_hisat2.csv")
 
-DE_sd_df_salmon_kallisto <- read.csv("../data/gen_samples/DE_sd_df.csv")
-DE_sd_df <- DE_sd_df_salmon_kallisto
+DE_sd_df <- rbind(DE_sd_df_salmon_kallisto, DE_sd_df_STAR_HISAT2)
 DE_sd_df <- DE_sd_df |>
     mutate(across(any_of(factors), ~ as.factor(.)))
 
 p_value_recipe <- DE_sd_df |>
-    select(-c(runtime_sec, gene_overlap_percent, effect_size_sd)) |>
+    select(-effect_size_sd) |>
     recipe(p_value_sd ~ .) |>
     step_dummy(all_factor_predictors()) |>
     step_interact(terms = ~ (all_predictors())^2) |>
@@ -80,7 +82,7 @@ p_value_recipe <- DE_sd_df |>
 effect_size_recipe <- DE_sd_df |>
     filter(norm_method != "ALDEx2") |> # Not the same scale as the others.
     droplevels() |>
-    select(-c(runtime_sec, gene_overlap_percent, p_value_sd)) |>
+    select(-p_value_sd) |>
     recipe(effect_size_sd ~ .) |>
     step_dummy(all_factor_predictors()) |>
     step_interact(terms = ~ (all_predictors())^2) |>
