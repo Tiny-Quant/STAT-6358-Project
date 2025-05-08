@@ -62,7 +62,11 @@ RUN --mount=type=cache,target=${MAMBA_ROOT_PREFIX}/pkgs,sharing=locked,id=conda_
 
 # Install cmdstanr.
 ENV TBB_CXX_TYPE=gcc
-RUN Rscript "cmdstanr::install_cmdstan()"
+RUN Rscript -e "cmdstanr::install_cmdstan()"
+
+# Resolves tidymodels incorrect time zone warning
+RUN mkdir -p /var/db/timezone
+RUN ln -sf /usr/share/zoneinfo/Etc/UTC /var/db/timezone/localtime
 
 # Copy current directory. 
 COPY . /repo/
