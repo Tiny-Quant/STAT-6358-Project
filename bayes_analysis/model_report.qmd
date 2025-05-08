@@ -34,3 +34,15 @@ for(tbl in beta_tables) {
     print(tbl)
 }
 ```
+
+# Posterior Predictive Check
+
+```{r}
+#| label: ppc-plots 
+
+ppc_plots <- tar_read(ppc_plots)
+
+for(plot in ppc_plots) {
+    print(plot)
+}
+```

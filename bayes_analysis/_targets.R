@@ -6,13 +6,13 @@
 # Load packages required to define the pipeline:
 library(targets)
 library(tarchetypes) # Load other packages as needed.
+cmdstanr::set_cmdstan_path(Sys.getenv("CMDSTAN"))
 
 # Set target options:
 tar_option_set(
     packages = c("tidyverse", "cmdstanr", "kableExtra"), # Packages that your targets need for their tasks.
-    format = "rds",
+    format = "qs", # Optionally set the default storage format. qs is fast.
     error = "null",
-    # format = "qs", # Optionally set the default storage format. qs is fast.
     #
     # Pipelines that take a long time to run may benefit from
     # optional distributed computing. To use this capability
@@ -71,9 +71,21 @@ list(
         pattern = map(stan_fit),
         iteration = "list"
     ),
+    tar_target(
+        ppc_plots,
+        post_pred_check_plot(stan_fit),
+        pattern = map(stan_fit),
+        iteration = "list"
+    ),
     # tar_target(
-    #     ppc_plots,
-    #     post_pred_check(stan_fit),
+    #     diag_test,
+    #     sampler_diag_test(stan_fit),
+    #     pattern = map(stan_fit),
+    #     iteration = "list"
+    # ),
+    # tar_target(
+    #     loo_test,
+    #     loo_cv(stan_fit),
     #     pattern = map(stan_fit),
     #     iteration = "list"
     # ),

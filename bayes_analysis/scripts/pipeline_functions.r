@@ -9,9 +9,9 @@ options(mc.cores = parallel::detectCores())
 response_vars <- c("count_sd", "p_value_sd", "effect_size_sd")
 
 # Hyperparameters
-n_chains <- 4
-n_iter <- 10000
-burn_in <- 2000
+n_chains <- 2
+n_iter <- 500
+burn_in <- 200
 
 # Functions
 
@@ -89,13 +89,15 @@ fit_stan_model <- function(model_grid_row, n_chains, n_iter, burn_in) {
         seed = 05042025
     )
 
+    invisible(fit$summary())
+    # invisible(fit$draws())
+
     attr(fit, "run_info") <- model_grid_row # Adds in meta data.
 
     return(fit)
 }
 
 beta_table <- function(stan_fit) {
-    browser()
     run_info <- attr(stan_fit, "run_info")
 
     # Extract dataset name.
@@ -120,7 +122,7 @@ beta_table <- function(stan_fit) {
         mutate(predictor = pred_names) |>
         mutate(avg_ess = (ess_bulk + ess_tail) / 2) |>
         mutate(avg_ess_percent = avg_ess / (n_iter * n_chains)) |>
-        # filter(!between(0, q5, q95)) |>
+        filter(sign(q5) == sign(q95)) |>
         filter(rhat <= 1.1) |>
         select(predictor, mean, sd, q5, q95, rhat, avg_ess_percent)
 
@@ -132,4 +134,70 @@ beta_table <- function(stan_fit) {
         )
 
     return(table_1)
+}
+
+post_pred_check_plot <- function(stan_fit) {
+    run_info <- attr(stan_fit, "run_info")
+
+    # Extract dataset name.
+    dataset_name <- case_when(
+        str_detect(run_info$dataset, "count") ~ "count",
+        str_detect(run_info$dataset, "p_value") ~ "p-value",
+        str_detect(run_info$dataset, "effect_size") ~ "effect size",
+        TRUE ~ "unknown"
+    )
+
+    caption <- paste(
+        "PPC for",
+        dataset_name, run_info$model_name, "model with",
+        run_info$prior_name, "prior"
+    )
+
+    post_draws <- stan_fit$draws(variables = "Y_post", format = "df") |>
+        slice_sample(n = 2) |>
+        pivot_longer(cols = everything(), values_to = "value") |>
+        select(value) |>
+        mutate(source = "posterior predictive") |>
+        unname()
+
+    obs <- read_csv(run_info$dataset) |>
+        select(any_of(response_vars)) |>
+        mutate(source = "observed") |>
+        unname()
+
+    ppc_plot_df <- rbind(post_draws, obs)
+    colnames(ppc_plot_df) <- c("sample", "source")
+
+    upper_bound <- ppc_plot_df |>
+        filter(source == "observed") |>
+        pull(sample) |>
+        max()
+
+    lower_bound <- ppc_plot_df |>
+        filter(source == "observed") |>
+        pull(sample) |>
+        min()
+
+    ppc_plot <- ppc_plot_df |>
+        mutate(source = as.factor(source)) |>
+        ggplot(aes(x = sample, col = source)) +
+        geom_density(bounds = c(lower_bound, upper_bound)) +
+        # geom_boxplot(
+        #     outliers = FALSE,
+        #     draw_quantiles = c(0.25, 0.5, 0.75),
+        #     fill = "skyblue"
+        # ) +
+        labs(title = caption) +
+        theme_bw()
+
+    return(ppc_plot)
+}
+
+sampler_diag_test <- function(stan_fit) {
+    return(stan_fit$diagnostic_summary())
+}
+
+loo_cv <- function(stan_fit) {
+    # return(stan_fit$loo())
+    return(stan_fit$metadata())
 }
