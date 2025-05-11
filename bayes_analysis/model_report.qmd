@@ -1,0 +1,48 @@
+---
+title: "Bayesian Model Report"
+author: "Art Tay"
+format:
+  pdf:
+     documentclass: article
+     papersize: letter
+     geometry:
+         margin=1in
+---
+
+```{r setup, include=FALSE}
+##Setup code
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Libraries
+library(tidyverse)
+library(tidymodels)
+library(kableExtra)
+library(targets)
+
+#tidymodels_prefer()
+```
+
+# Marginal Effects 
+
+```{r}
+#| label: beta-tables
+#| results: asis
+
+beta_tables <- tar_read(beta_tables)
+
+for(tbl in beta_tables) {
+    print(tbl)
+}
+```
+
+# Posterior Predictive Check
+
+```{r}
+#| label: ppc-plots 
+
+ppc_plots <- tar_read(ppc_plots)
+
+for(plot in ppc_plots) {
+    print(plot)
+}
+```

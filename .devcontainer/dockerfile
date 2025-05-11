@@ -48,7 +48,6 @@ RUN wget --output-document sratoolkit.tar.gz https://ftp-trace.ncbi.nlm.nih.gov/
 ENV PATH=/opt/sra-tools/sratoolkit.3.2.1-ubuntu64/bin:$PATH
 
 # Install micromamba. 
-# Install micromamba. 
 ENV MAMBA_ROOT_PREFIX=/opt/micromamba
 ENV PATH=$MAMBA_ROOT_PREFIX/bin:$PATH
 RUN curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest \
@@ -60,6 +59,14 @@ RUN --mount=type=cache,target=${MAMBA_ROOT_PREFIX}/pkgs,sharing=locked,id=conda_
     micromamba install -n base -y -f /tmp/micromamba_env.txt && \
     echo 'eval "$(micromamba shell hook --shell=bash)"' >> ~/.bashrc && \
     echo 'micromamba activate base' >> ~/.bashrc
+
+# Install cmdstanr.
+ENV TBB_CXX_TYPE=gcc
+RUN Rscript -e "cmdstanr::install_cmdstan()"
+
+# Resolves tidymodels incorrect time zone warning
+RUN mkdir -p /var/db/timezone
+RUN ln -sf /usr/share/zoneinfo/Etc/UTC /var/db/timezone/localtime
 
 # Copy current directory. 
 COPY . /repo/
